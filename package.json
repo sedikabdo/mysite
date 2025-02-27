@@ -2,11 +2,10 @@
   "name": "code",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "vercel-start": "node app.js",
-    "build": "npx tailwindcss -o public/tailwind.css"
+    "start": "node index.js",
+    "vercel-start": "node index.js"
   },
   "author": "",
   "license": "ISC",
@@ -43,5 +42,8 @@
   "devDependencies": {
     "imagemin": "^9.0.0",
     "imagemin-webp": "^4.1.0"
+  },
+  "engines": {
+    "node": "22.14.0"
   }
 }
