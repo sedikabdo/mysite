@@ -56,7 +56,7 @@ app.use(
     secret: "your_jwt_secret",
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: false },
+    cookie: { secure: false }, // ضعها true في الإنتاج مع HTTPS
   })
 );
 
@@ -102,7 +102,7 @@ app.use("/admin", adminSiteStatsRoutes);
 app.use("/admin", adminRolesPermissionsRoutes);
 app.use("/admin", adminForumSettingsRoutes);
 app.use("/admin", adminJobProjectSettingsRoutes);
-app.use("/", require("./router/GlobalRoleRouter")); // راوتر إضافي
+app.use("/", require("./router/GlobalRoleRouter"));
 
 // مسارات ثابتة للصفحات
 app.get('/about', (req, res) =>
@@ -131,33 +131,37 @@ app.get("/ProjectSpace", (req, res) => {
   });
 });
 
-// إعداد Socket.IO
-initSocket(server);
+// إعداد Socket.IO (مع تعليق للتوافق مع Vercel)
+if (!process.env.VERCEL) {
+  initSocket(server);
+}
 
-// جدولة حذف الإعلانات القديمة
-cron.schedule(
-  "0 0 * * *",
-  async () => {
-    try {
-      await forumModel.deleteOldAds();
-      console.log("Scheduled deletion of old ads completed.");
-    } catch (err) {
-      console.error("Error in scheduled deletion:", err);
+// جدولة حذف الإعلانات القديمة (مع تعليق للتوافق مع Vercel)
+if (!process.env.VERCEL) {
+  cron.schedule(
+    "0 0 * * *",
+    async () => {
+      try {
+        await forumModel.deleteOldAds();
+        console.log("Scheduled deletion of old ads completed.");
+      } catch (err) {
+        console.error("Error in scheduled deletion:", err);
+      }
+    },
+    {
+      scheduled: true,
+      timezone: "Asia/Riyadh",
     }
-  },
-  {
-    scheduled: true,
-    timezone: "Asia/Riyadh",
-  }
-);
+  );
+}
 
-// بدء الخادم للتشغيل المحلي فقط
+// تشغيل الخادم محليًا فقط
 const PORT = process.env.PORT || 8080;
-if (process.env.VERCEL || process.env.NODE_ENV === "production") {
-  // في بيئة Vercel أو الإنتاج، لا نقوم بنداء server.listen
-  module.exports = app;
-} else {
+if (!process.env.VERCEL) {
   server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
+
+// تصدير التطبيق لـ Vercel
+module.exports = app;
