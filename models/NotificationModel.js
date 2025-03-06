@@ -32,7 +32,7 @@ class NotificationModel {
 
   static async getUserById(userId) {
     const query = `
-      SELECT id, name, avatar, email, role
+      SELECT id, name, avatar, email, role, is_active
       FROM users
       WHERE id = ?
     `;
@@ -46,7 +46,7 @@ class NotificationModel {
 
   static async getUserByEmail(email) {
     const query = `
-      SELECT id, name, avatar, email, role
+      SELECT id, name, avatar, email, role, is_active
       FROM users
       WHERE email = ?
     `;
@@ -81,6 +81,7 @@ class NotificationModel {
       });
     });
   }
+
   static async markAllAsViewed(userId) {
     const query = `
       UPDATE notifications 
@@ -94,6 +95,7 @@ class NotificationModel {
       });
     });
   }
+
   static async deleteNotification(notificationId) {
     const query = "DELETE FROM notifications WHERE id = ?";
     return new Promise((resolve, reject) => {

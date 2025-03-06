@@ -70,11 +70,10 @@
   }
   
   .navbar .logo img {
+    margin-top: 10px;
     width: 60px; /* تحديد الحجم في CSS لتجنب التحولات */
     height: 60px;
     object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid var(--primary-color);
     transition: transform var(--transition);
   }
   

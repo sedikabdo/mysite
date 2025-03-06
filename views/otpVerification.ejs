@@ -14,18 +14,25 @@
     }
     body {
       height: 100vh;
-      display: grid;
-      place-items: center;
-      background-color: #eaf5f6;
+      margin: 0;
+      padding: 0;
+      
+      
     }
+   
     .container {
-      width: 400px;
-      padding: 50px;
+     
+    margin: 0 auto;
+      width: 100%;
+      max-width: 450px;
+      padding: 40px;
       background-color: #ffffff;
-      border-radius: 25px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
     }
+
     h3 {
       font-size: 28px;
       font-weight: 700;
@@ -90,14 +97,24 @@
       margin-top: 15px;
       font-weight: 600;
     }
+    .message-success {
+      color: #2ecc71;
+      margin-top: 15px;
+      font-weight: 600;
+    }
   </style>
 </head>
+<header style="width: 100%; margin-bottom: 100px;">
+  <%- include('partials/headerhome') %>
+
+</header>
 <body>
+
   <div class="container">
     <h3>التحقق عبر OTP</h3>
     <p>
       أدخل رمز OTP المرسل إلى
-      <span><%= email %></span>
+      <span><%= email || "بريدك الإلكتروني" %></span>
     </p>
     <form action="/verify-otp" method="POST">
       <input type="hidden" name="token" value="<%= token %>" />
@@ -116,6 +133,9 @@
     <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
       <p class="message-error"><%= errorMessage %></p>
     <% } %>
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+      <p class="message-success"><%= successMessage %></p>
+    <% } %>
   </div>
   <script>
     const inputFields = document.querySelectorAll("input.field");
@@ -128,4 +148,7 @@
     });
   </script>
 </body>
+<footer style="width: 100%; margin-top: 100px;">
+  <%- include('partials/footer') %>
+</footer>
 </html>

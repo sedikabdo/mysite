@@ -4,11 +4,11 @@ require('dotenv').config(); // تحميل المتغيرات من .env
 
 // إعداد الاتصال بقاعدة البيانات باستخدام المتغيرات البيئية
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  port: process.env.DB_PORT
+  host: 'localhost',
+  user: 'root',
+  password:  '',
+  database:'sedik',
+  port:  3306
 });
 
 db.connect((err) => {

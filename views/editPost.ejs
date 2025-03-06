@@ -5,87 +5,196 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>تعديل المنشور</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      text-align: center;
-      direction: rtl;
+    /* إعادة ضبط الهوامش والحشو */
+    * {
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    h2 {
+    /* تنسيق عام للصفحة */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
       color: #333;
+      line-height: 1.6;
+      padding: 0px;
     }
 
+    /* تنسيق العنوان */
+    h2 {
+      color: #6a1b9a; /* بنفسجي غامق */
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    /* تنسيق النموذج */
     form {
       background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 60%;
-      margin: auto;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin: 0 auto;
+      direction: rtl;
     }
 
-    div {
-      margin-bottom: 15px;
-      text-align: right;
+    /* تنسيق العناصر داخل النموذج */
+    .form-group {
+      margin-bottom: 20px;
     }
 
     label {
-      font-weight: bold;
+      font-weight: 600;
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
+      color: #6a1b9a; /* بنفسجي غامق */
     }
 
     textarea {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 12px;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
       font-size: 16px;
+      resize: vertical;
+      min-height: 150px;
+      transition: border-color 0.3s ease;
+    }
+
+    textarea:focus {
+      border-color: #9c27b0; /* بنفسجي */
+      outline: none;
     }
 
     input[type="file"] {
-      display: block;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      background-color: #f8f9fa;
       margin-top: 5px;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="file"]:focus {
+      border-color: #9c27b0; /* بنفسجي */
+      outline: none;
     }
 
     img {
       display: block;
       margin-top: 10px;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      max-width: 100%;
+      height: auto;
     }
 
     button {
-      background-color: #28a745;
+      background-color: #9c27b0; /* بنفسجي */
       color: white;
       border: none;
-      padding: 10px 20px;
-      font-size: 18px;
-      border-radius: 5px;
+      padding: 12px 18px; /* تعديل حجم الزر */
+      font-size: 16px; /* تعديل حجم الخط */
+      border-radius: 8px;
       cursor: pointer;
       width: 100%;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     button:hover {
-      background-color: #218838;
+      background-color: #7b1fa2; /* بنفسجي غامق */
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* التجاوب مع الشاشات الصغيرة */
+    @media (max-width: 768px) {
+      form {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      textarea {
+        font-size: 14px;
+      }
+
+      button {
+        font-size: 14px; /* تعديل حجم الخط للشاشات الصغيرة */
+        padding: 10px 16px; /* تعديل حجم الزر للشاشات الصغيرة */
+      }
+    }
+
+    /* تحسين تنسيق الصور في الشاشات الصغيرة */
+    @media (max-width: 480px) {
+      img {
+        width: 100%;
+      }
+    }
+
+    /* تحسينات إضافية */
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .file-input-container {
+      position: relative;
+    }
+
+    .file-input-container input[type="file"] {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      text-align: center;
+      color: #6a1b9a; /* بنفسجي غامق */
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .file-input-label:hover {
+      background-color: #e1bee7; /* بنفسجي فاتح */
     }
   </style>
 </head>
+<%- include('partials/headerhome') %>
+<%- include('partials/headeraction') %>
+<body>
 <body>
   <h2>تعديل المنشور</h2>
   <form action="/forum/post/<%= post.id %>/edit" method="POST" enctype="multipart/form-data">
-    <div>
+    <div class="form-group">
       <label for="content">محتوى المنشور</label>
       <textarea name="content" id="content" rows="4" cols="50"><%= post.content %></textarea>
     </div>
 
     <% for (let i = 1; i <= 4; i++) { %>
-      <div>
+      <div class="form-group">
         <label for="postImages<%= i %>">الصورة <%= i %></label>
-        <input type="file" name="postImages" id="postImages<%= i %>" accept="image/*" />
+        <div class="file-input-container">
+          <input type="file" name="postImages" id="postImages<%= i %>" accept="image/*" />
+          <label for="postImages<%= i %>" class="file-input-label">اختر ملفًا</label>
+        </div>
         <% if (post['image' + i]) { %>
           <img src="/uploads/images/<%= post['image' + i] %>" alt="Image <%= i %>" width="100" />
         <% } %>
@@ -95,4 +204,8 @@
     <button type="submit">تحديث المنشور</button>
   </form>
 </body>
+<footer style="margin-top: 20vh;">
+  <%- include('partials/footer') %>
+</footer>
+
 </html>

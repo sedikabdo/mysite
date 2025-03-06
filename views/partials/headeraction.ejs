@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/css/headeraction.min.css" media="print" onload="this.media='all'" />
+<link rel="stylesheet" href="/css/headeraction.min.css" media="all" />
 <div class="header" role="navigation" aria-label="شريط التنقل العلوي">
   <nav id="colorNav">
     <ul>
@@ -42,25 +42,35 @@
   <a href="/forum" aria-label="المنتدى"><i class="fas fa-home"></i></a>
 </div>
 
+<!-- تحميل سكريبت socket.io مع defer لضمان تحميل DOM أولاً -->
 <script src="/socket.io/socket.io.js" defer></script>
-<script>
+
+<script defer>
+  // مستمع عام للأخطاء لمنع تأثيرها على واجهة المستخدم
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.error("Error caught:", message);
+    // يمكن إضافة إجراءات أخرى مثل إرسال الخطأ لسيرفر السجلات
+    return true; // منع عرض الخطأ بشكل افتراضي
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
-    const socket = io();
-    const userId = "<%= locals.userId || '' %>";
-    const notificationsIcon = document.getElementById('notifications-icon');
-    const messagesIcon = document.getElementById('messages-icon');
-    const unreadNotificationsCount = document.getElementById('unread-notifications-count');
-    const unreadMessagesCount = document.getElementById('unread-messages-count');
+    try {
+      const socket = io();
+      const userId = "<%= locals.userId || '' %>";
+      const notificationsIcon = document.getElementById('notifications-icon');
+      const messagesIcon = document.getElementById('messages-icon');
+      const unreadNotificationsCount = document.getElementById('unread-notifications-count');
+      const unreadMessagesCount = document.getElementById('unread-messages-count');
 
-    if (userId) {
-      socket.emit("join", userId);
-    }
+      if (userId) {
+        socket.emit("join", userId);
+      }
 
-    fetch('/chat/unread-count', {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
-    })
+      fetch('/chat/unread-count', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+      })
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
@@ -72,71 +82,82 @@
           unreadMessagesCount.style.display = initialCount > 0 ? 'inline' : 'none';
         }
       })
-      .catch(error => {});
+      .catch(error => {
+        console.error("Fetch unread count error:", error);
+      });
 
-    socket.on("newNotification", () => {
-      let currentCount = parseInt(unreadNotificationsCount.textContent) || 0;
-      currentCount++;
-      unreadNotificationsCount.textContent = currentCount;
-      unreadNotificationsCount.style.display = 'inline';
-    });
-
-    socket.on("newMessage", (message) => {
-      if (message.receiver_id === userId && !message.is_read) {
-        let currentCount = parseInt(unreadMessagesCount.textContent) || 0;
+      socket.on("newNotification", () => {
+        let currentCount = parseInt(unreadNotificationsCount.textContent) || 0;
         currentCount++;
-        unreadMessagesCount.textContent = currentCount;
-        unreadMessagesCount.style.display = 'inline';
-      }
-    });
+        unreadNotificationsCount.textContent = currentCount;
+        unreadNotificationsCount.style.display = 'inline';
+      });
 
-    notificationsIcon.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        const response = await fetch('/notifications/mark-all-as-read', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (response.ok) {
-          unreadNotificationsCount.textContent = '0';
-          unreadNotificationsCount.style.display = 'none';
+      socket.on("newMessage", (message) => {
+        if (message.receiver_id === userId && !message.is_read) {
+          let currentCount = parseInt(unreadMessagesCount.textContent) || 0;
+          currentCount++;
+          unreadMessagesCount.textContent = currentCount;
+          unreadMessagesCount.style.display = 'inline';
         }
-        window.location.href = '/notifications';
-      } catch (error) {}
-    });
+      });
 
-    messagesIcon.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        const response = await fetch('/chat/mark-all-as-read', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (response.ok) {
-          unreadMessagesCount.textContent = '0';
-          unreadMessagesCount.style.display = 'none';
-        }
-        window.location.href = '/messages';
-      } catch (error) {}
-    });
-
-    const logoutForm = document.getElementById('logout-form');
-    if (logoutForm) {
-      logoutForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      notificationsIcon.addEventListener('click', async (e) => {
+        e.preventDefault(); // منع التنقل التلقائي حتى يتم تنفيذ العملية بنجاح
         try {
-          const response = await fetch('/logout', {
+          const response = await fetch('/notifications/mark-all-as-read', {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
-        });
+          });
           if (response.ok) {
-            window.location.href = '/login';
+            unreadNotificationsCount.textContent = '0';
+            unreadNotificationsCount.style.display = 'none';
           }
-        } catch (error) {}
+          window.location.href = '/notifications';
+        } catch (error) {
+          console.error("Notifications error:", error);
+        }
       });
+
+      messagesIcon.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          const response = await fetch('/chat/mark-all-as-read', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          if (response.ok) {
+            unreadMessagesCount.textContent = '0';
+            unreadMessagesCount.style.display = 'none';
+          }
+          window.location.href = '/messages';
+        } catch (error) {
+          console.error("Messages error:", error);
+        }
+      });
+
+      const logoutForm = document.getElementById('logout-form');
+      if (logoutForm) {
+        logoutForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          try {
+            const response = await fetch('/logout', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+              window.location.href = '/login';
+            }
+          } catch (error) {
+            console.error("Logout error:", error);
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Initialization error:", err);
     }
   });
 </script>

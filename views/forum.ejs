@@ -10,7 +10,8 @@
   <meta name="robots" content="index, follow" />
   <meta name="googlebot" content="index, follow" />
   <title>المنتدى | Colorizer</title>
-
+  <link rel="stylesheet" href="/css/headeraction.min.css" media="all" />
+  <link rel="stylesheet" href="/css/forum.css" media="all" />
   <!-- تحسين الأداء: تحميل Google Fonts و FontAwesome مع تأخير -->
   <link rel="dns-prefetch" href="//fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -18,9 +19,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'" />
 
   <!-- تحسين الأداء: إضافة SweetAlert2 مضغوط مع defer -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js" defer></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" media="print" onload="this.media='all'" />
-
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <!-- تحسين الأداء: تحميل مسبق لصورة المستخدم -->
   <link rel="preload" href="<%= currentUserAvatar ? (currentUserAvatar.includes('/uploads/avatars/') ? currentUserAvatar : '/uploads/avatars/' + currentUserAvatar) : '/uploads/images/pngwing.com.png' %>" as="image" />
 
@@ -49,887 +49,177 @@
   <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
   <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin" />
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Cairo', sans-serif;
-    }
-
-    /* إخفاء شريط التمرير */
-    ::-webkit-scrollbar {
-      width: 0;
-      height: 0;
-    }
-    * {
-      scrollbar-width: none;
-    }
-    body {
-      -ms-overflow-style: none;
-      background-color: #f9fbfc;
-      color: #333;
-      line-height: 1.6;
-      font-size: 0.875rem;
-    }
-
-    .all {
-      display: flex;
-      justify-content: space-between;
-      padding: 2%;
-      gap: 2%;
-    }
-
-    .left,
-    .right {
-      width: 25%;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      padding: 20px;
-      max-height: 80vh;
-      overflow-y: auto;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .left:hover,
-    .right:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .center {
-      width: 50%;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      padding: 20px;
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-
-    .text {
-      text-align: center;
-      font-size: 1.1rem;
-      color: #6B48FF;
-      letter-spacing: 1px;
-      margin-bottom: 30px;
-      text-transform: capitalize;
-      font-weight: bold;
-      font-family: 'Tajawal', sans-serif;
-    }
-
-    /* تحسين تصميم فورم النشر */
-    .share {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      padding: 15px;
-      margin-bottom: 20px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .share:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .row {
-      display: flex;
-      align-items: flex-start;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-
-    .row img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-      border: 2px solid #6B48FF;
-    }
-
-    .row img:hover {
-      transform: scale(1.1);
-    }
-
-    .share textarea {
-      flex: 1;
-      width: 100%;
-      min-width: 300px;
-      height: 60px;
-      padding: 15px 20px;
-      border-radius: 20px;
-      border: 2px solid #DDD6FE;
-      background: #F9F9F9;
-      font-size: 1rem;
-      font-family: 'Cairo', sans-serif;
-      color: #333;
-      resize: vertical;
-      outline: none;
-      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
-      transition: border-color 0.3s ease, box-shadow 0.3s ease, height 0.3s ease;
-    }
-
-    .share textarea:focus {
-      border-color: #6B48FF;
-      box-shadow: 0 0 10px rgba(107, 72, 255, 0.3);
-      height: 160px; /* زيادة الارتفاع عند التركيز */
-    }
-
-    .share textarea::placeholder {
-      color: #999;
-      font-style: italic;
-    }
-
-    .hidden-form {
-      display: none;
-      opacity: 0;
-      background: #f9fbfc;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      transform: translateY(10px);
-      border: 1px solid #DDD6FE;
-    }
-
-    .hidden-form.active {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 15px;
-      opacity: 1;
-      transform: translateY(0);
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    #image-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 0;
-    }
-
-    #image-preview img {
-      width: 80px;
-      height: 80px;
-      border-radius: 10px;
-      object-fit: cover;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
-
-    #image-preview img:hover {
-      transform: scale(1.05);
-    }
-
-    #image-preview .remove-image {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #FF5C5C;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background 0.3s ease;
-    }
-
-    #image-preview .remove-image:hover {
-      background: #FF8A8A;
-    }
-
-    .share .file-input-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .share .file-input-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #6B48FF, #A78BFA);
-      color: #FFFFFF;
-      padding: 10px 20px;
-      border-radius: 25px;
-      font-size: 0.9rem;
-      font-family: 'Tajawal', sans-serif;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 2px 5px rgba(107, 72, 255, 0.2);
-    }
-
-    .share .file-input-label:hover {
-      background: linear-gradient(135deg, #A78BFA, #6B48FF);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
-    }
-
-    .share input[type="file"] {
-      display: none;
-    }
-
-    .share-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .share-btn,
-    .cancel-btn {
-      padding: 10px 25px;
-      border: none;
-      border-radius: 25px;
-      font-size: 0.9rem;
-      font-family: 'Tajawal', sans-serif;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .share-btn {
-      background: linear-gradient(135deg, #6B48FF, #A78BFA);
-      color: #FFFFFF;
-    }
-
-    .share-btn:hover {
-      background: linear-gradient(135deg, #A78BFA, #6B48FF);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
-    }
-
-    .cancel-btn {
-      background: linear-gradient(135deg, #FF5C5C, #FF8A8A);
-      color: #FFFFFF;
-    }
-
-    .cancel-btn:hover {
-      background: linear-gradient(135deg, #FF8A8A, #FF5C5C);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(255, 92, 92, 0.3);
-    }
-
-    /* قسم الإعلانات */
-    .story-slider {
-      display: flex;
-      gap: 1rem;
-      padding: 1rem;
-      background: #FFFFFF;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      overflow-x: auto;
-      margin-bottom: 20px;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .story-item {
-      position: relative;
-      width: 120px;
-      height: 180px;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      background: linear-gradient(135deg, #6B48FF, #A78BFA);
-      flex-shrink: 0;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .story-item:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(107, 72, 255, 0.3);
-    }
-
-    .story-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.9;
-      transition: opacity 0.3s ease;
-    }
-
-    .story-item:hover img {
-      opacity: 1;
-    }
-
-    .story-item .avatar {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #FFFFFF;
-      object-fit: cover;
-    }
-
-    .story-item .username {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      color: #FFFFFF;
-      font-size: 0.9rem;
-      font-family: 'Tajawal', sans-serif;
-      font-weight: 700;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    }
-
-    .story-item.add-story {
-      background: #F9F9F9;
-      border: 2px dashed #6B48FF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 0.5rem;
-      color: #6B48FF;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    .story-item.add-story:hover {
-      background: #6B48FF;
-      color: #FFFFFF;
-      border-color: #FFFFFF;
-    }
-
-    .story-item.add-story i {
-      font-size: 1.5rem;
-    }
-
-    .story-item.add-story span {
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .story-view {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
-    }
-
-    .story-view.show {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .story-view .progress-container {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      right: 20px;
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .story-view .progress-bar {
-      height: 4px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .story-view .progress-bar .progress {
-      height: 100%;
-      background: linear-gradient(90deg, #6B48FF, #A78BFA);
-      width: 0%;
-      border-radius: 4px;
-      transition: width 0.1s linear;
-    }
-
-    .story-view .story-content {
-      position: relative;
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .story-view .story-content img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: cover;
-    }
-
-    .story-view .story-content .text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #FFFFFF;
-      font-size: 1.5rem;
-      font-weight: 700;
-      text-align: center;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    }
-
-    .story-view .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      color: #FFFFFF;
-      font-size: 1.5rem;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.5);
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background 0.3s ease;
-    }
-
-    .story-view .close-btn:hover {
-      background: rgba(0, 0, 0, 0.8);
-    }
-
-    .story-view .nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #FFFFFF;
-      font-size: 2rem;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s ease;
-    }
-
-    .story-view .nav-btn:hover {
-      background: rgba(0, 0, 0, 0.8);
-    }
-
-    .story-view .nav-btn.prev {
-      left: 20px;
-    }
-
-    .story-view .nav-btn.next {
-      right: 20px;
-    }
-
-    .story-view .ad-text {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      color: #FFFFFF;
-      font-size: 1rem;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 0.75rem;
-      border-radius: 12px;
-    }
-
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
-    }
-
-    .modal.show {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .modal-content {
-      background: #FFFFFF;
-      padding: 2rem;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-      position: relative;
-      transform: scale(0.95);
-      transition: transform 0.3s ease;
-    }
-
-    .modal.show .modal-content {
-      transform: scale(1);
-    }
-
-    .modal-content .close-modal {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: 1.5rem;
-      color: #6B48FF;
-      cursor: pointer;
-      background: none;
-      border: none;
-      transition: color 0.3s ease;
-    }
-
-    .modal-content .close-modal:hover {
-      color: #FF5C5C;
-    }
-
-    .modal-content h3 {
-      font-size: 1.5rem;
-      color: #6B48FF;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    .modal-content .file-input {
-      position: relative;
-      margin-bottom: 1rem;
-    }
-
-    .modal-content .file-input input[type="file"] {
-      display: none;
-    }
-
-    .modal-content .file-input label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #6B48FF, #A78BFA);
-      color: #FFFFFF;
-      padding: 12px 20px;
-      border-radius: 25px;
-      font-size: 0.9rem;
-      font-family: 'Tajawal', sans-serif;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.3s ease;
-      text-align: center;
-    }
-
-    .modal-content .file-input label:hover {
-      background: linear-gradient(135deg, #A78BFA, #6B48FF);
-      transform: translateY(-2px);
-    }
-
-    .modal-content input,
-    .modal-content textarea {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      margin: 0.5rem 0 1rem;
-      border: 2px solid #DDD6FE;
-      border-radius: 12px;
-      font-size: 1rem;
-      background: #F9F9F9;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .modal-content input:focus,
-    .modal-content textarea:focus {
-      border-color: #6B48FF;
-      box-shadow: 0 0 8px rgba(107, 72, 255, 0.3);
-      outline: none;
-    }
-
-    .modal-content textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    .modal-content button[type="submit"] {
-      width: 100%;
-      padding: 0.75rem;
-      background: linear-gradient(135deg, #6B48FF, #A78BFA);
-      color: #FFFFFF;
-      border: none;
-      border-radius: 25px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-
-    .modal-content button[type="submit"]:hover {
-      background: linear-gradient(135deg, #A78BFA, #6B48FF);
-      transform: translateY(-2px);
-    }
-
-    /* باقي التصميمات */
-    .post {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      padding: 15px;
-      margin-bottom: 20px;
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-
-    .post:hover {
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      transform: translateY(-3px);
-    }
-
-    .post-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .post-actions {
-      display: flex;
-      gap: 15px;
-    }
-
-    .action-btn {
-      background: none;
-      border: none;
-      color: #6B48FF;
-      font-size: 18px;
-      cursor: pointer;
-      transition: color 0.3s ease, transform 0.3s ease;
-    }
-
-    .action-btn:hover {
-      color: #A78BFA;
-      transform: scale(1.2);
-    }
-
-    .person {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .post-avatar img {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .post-user-info .post-user-name {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .post-time {
-      font-size: 12px;
-      color: #7f8c8d;
-    }
-
-    .post-content p {
-      font-size: 15px;
-      color: #2c3e50;
-      line-height: 1.5;
-      text-align: right;
-    }
-
-    .post-images {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 15px 0;
-      justify-content: center;
-    }
-
-    .post-image {
-      max-width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
-
-    .post-image:hover {
-      transform: scale(1.03);
-    }
-
-    .post-footer {
-      display: flex;
-      justify-content: space-between;
-      padding-top: 10px;
-      border-top: 1px solid #eef2f6;
-    }
-
-    .post-footer button {
-      background: none;
-      border: none;
-      color: #6B48FF;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: color 0.3s ease, transform 0.3s ease;
-    }
-
-    .post-footer button:hover {
-      color: #A78BFA;
-      transform: translateY(-2px);
-    }
-
-    .like-count, .count {
-      font-weight: 600;
-      color: #2c3e50;
-    }
-
-    .comments-section {
-      margin-top: 15px;
-    }
-
-    .comment-form .rowcomment {
-      display: flex;
-      align-items: center;
-      background: #F9F9F9;
-      border-radius: 25px;
-      overflow: hidden;
-    }
-
-    .comment-form input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 10px;
-      font-size: 14px;
-    }
-
-    .comment-form button {
-      background: linear-gradient(135deg, #6B48FF, #A78BFA);
-      color: #FFFFFF;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 0 25px 25px 0;
-      transition: background 0.3s ease;
-    }
-
-    .comment-form button:hover {
-      background: linear-gradient(135deg, #A78BFA, #6B48FF);
-    }
-
-    .comments-list {
-      max-height: 250px;
-      overflow-y: auto;
-      margin-top: 10px;
-    }
-
-    .comment {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      background: #F9F9F9;
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-
-    .comment-avatar {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .comment p {
-      font-size: 14px;
-      color: #2c3e50;
-    }
-
-    @media screen and (max-width: 768px) {
-      .left, .right {
-        display: none;
-      }
-      .center {
-        width: 100%;
-      }
-      .share textarea {
-        min-width: 100%;
-      }
-      .hidden-form.active {
-        flex-direction: column;
-        align-items: stretch;
-      }
-    }
-
-    .mobile-nav {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #fff;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      padding: 10px 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-around;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #7a7a7a;
-      cursor: pointer;
-      font-size: 14px;
-      transition: color 0.3s ease;
-    }
-
-    .nav-item i {
-      font-size: 1.5rem;
-      margin-bottom: 5px;
-    }
-
-    .nav-item:hover {
-      color: #6B48FF;
-    }
-
-    @media (max-width: 768px) {
-      .mobile-nav {
-        display: flex;
-      }
-    }
-
-    @media (min-width: 769px) {
-      .mobile-nav {
-        display: none;
-      }
-    }
-  </style>
 </head>
 <body>
   <%- include('partials/headerhome') %>
-  <%- include('partials/headeraction') %>
+
+  <div class="header" role="navigation" aria-label="شريط التنقل العلوي">
+    <nav id="colorNav">
+      <ul>
+        <li>
+          <a href="#" class="dropdown-toggle fa fa-cog" aria-label="خيارات المستخدم" aria-expanded="false" aria-controls="dropdown-menu"></a>
+          <ul class="dropdown-menu" role="menu" id="dropdown-menu">
+            <% if (locals.isAdmin) { %>
+              <li><a href="/admin/dashboard" aria-label="التحكم"><i class="fas fa-user-shield" aria-hidden="true"></i> التحكم</a></li>
+            <% } %>
+            <li>
+              <form action="/logout" method="POST" id="logout-form">
+                <button type="submit" style="background: none; border: none; padding: 0; width: 100%; text-align: right;" aria-label="تسجيل الخروج">
+                  <i class="fas fa-sign-out-alt" aria-hidden="true"></i> تسجيل الخروج
+                </button>
+              </form>
+            </li>
+            <li><a href="/change-password" aria-label="تغيير كلمة المرور"><i class="fas fa-lock" aria-hidden="true"></i> تغيير كلمة المرور</a></li>
+            <li><a href="/updateProfile" aria-label="تعديل الملف الشخصي"><i class="fas fa-user-edit" aria-hidden="true"></i> تعديل الملف الشخصي</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <a href="/friends" aria-label="الأصدقاء"><i class="fas fa-users"></i></a>
+    <a href="/profile" aria-label="الملف الشخصي"><i class="fas fa-user"></i></a>
+    <a href="/notifications" class="notification-icon" id="notifications-icon" aria-label="الإشعارات">
+      <i class="fas fa-bell"></i>
+      <% if (locals.unreadCount > 0) { %>
+        <span class="notification-count" id="unread-notifications-count"><%= locals.unreadCount %></span>
+      <% } else { %>
+        <span class="notification-count" id="unread-notifications-count" style="display: none;">0</span>
+      <% } %>
+    </a>
+    <a href="/messages" class="notification-icon" id="messages-icon" aria-label="الرسائل">
+      <i class="fas fa-message"></i>
+      <% if (locals.unreadMessagesCount > 0) { %>
+        <span class="notification-count" id="unread-messages-count"><%= locals.unreadMessagesCount %></span>
+      <% } else { %>
+        <span class="notification-count" id="unread-messages-count" style="display: none;">0</span>
+      <% } %>
+    </a>
+    <a href="/forum" aria-label="المنتدى"><i class="fas fa-home"></i></a>
+  </div>
+  
+  <!-- تحميل سكريبت socket.io مع defer لضمان تحميل DOM أولاً -->
+  <script src="/socket.io/socket.io.js" defer></script>
+  
+  <script defer>
+    // مستمع عام للأخطاء لمنع تأثيرها على واجهة المستخدم
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error("Error caught:", message);
+      // يمكن إضافة إجراءات أخرى مثل إرسال الخطأ لسيرفر السجلات
+      return true; // منع عرض الخطأ بشكل افتراضي
+    };
+  
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const socket = io();
+        const userId = "<%= locals.userId || '' %>";
+        const notificationsIcon = document.getElementById('notifications-icon');
+        const messagesIcon = document.getElementById('messages-icon');
+        const unreadNotificationsCount = document.getElementById('unread-notifications-count');
+        const unreadMessagesCount = document.getElementById('unread-messages-count');
+  
+        if (userId) {
+          socket.emit("join", userId);
+        }
+  
+        fetch('/chat/unread-count', {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+        })
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            const initialCount = data.unreadMessagesCount || 0;
+            unreadMessagesCount.textContent = initialCount;
+            unreadMessagesCount.style.display = initialCount > 0 ? 'inline' : 'none';
+          }
+        })
+        .catch(error => {
+          console.error("Fetch unread count error:", error);
+        });
+  
+        socket.on("newNotification", () => {
+          let currentCount = parseInt(unreadNotificationsCount.textContent) || 0;
+          currentCount++;
+          unreadNotificationsCount.textContent = currentCount;
+          unreadNotificationsCount.style.display = 'inline';
+        });
+  
+        socket.on("newMessage", (message) => {
+          if (message.receiver_id === userId && !message.is_read) {
+            let currentCount = parseInt(unreadMessagesCount.textContent) || 0;
+            currentCount++;
+            unreadMessagesCount.textContent = currentCount;
+            unreadMessagesCount.style.display = 'inline';
+          }
+        });
+  
+        notificationsIcon.addEventListener('click', async (e) => {
+          e.preventDefault(); // منع التنقل التلقائي حتى يتم تنفيذ العملية بنجاح
+          try {
+            const response = await fetch('/notifications/mark-all-as-read', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+              unreadNotificationsCount.textContent = '0';
+              unreadNotificationsCount.style.display = 'none';
+            }
+            window.location.href = '/notifications';
+          } catch (error) {
+            console.error("Notifications error:", error);
+          }
+        });
+  
+        messagesIcon.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try {
+            const response = await fetch('/chat/mark-all-as-read', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+              unreadMessagesCount.textContent = '0';
+              unreadMessagesCount.style.display = 'none';
+            }
+            window.location.href = '/messages';
+          } catch (error) {
+            console.error("Messages error:", error);
+          }
+        });
+  
+        const logoutForm = document.getElementById('logout-form');
+        if (logoutForm) {
+          logoutForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+              const response = await fetch('/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              if (response.ok) {
+                window.location.href = '/login';
+              }
+            } catch (error) {
+              console.error("Logout error:", error);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Initialization error:", err);
+      }
+    });
+  </script>
   
   <nav class="mobile-nav">
     <div class="nav-item" data-link="/jobs"><i class="fas fa-briefcase"></i><span>الوظائف</span></div>
-    <div class="nav-item" data-link="/projects"><i class="fas fa-cogs"></i><span>المشاريع</span></div>
-    <div class="nav-item" data-link="/forum"><i class="fas fa-blog"></i><span>المشاركات</span></div>
+    <div class="nav-item" data-link="/ProjectSpace"><i class="fas fa-cogs"></i><span>المشاريع</span></div>
+    <div class="nav-item" data-link="/my-posts"><i class="fas fa-blog"></i><span>المشاركات</span></div>
   </nav>
   
   <div class="all">
@@ -1591,7 +881,6 @@
       }
     });
   </script>
-  
   <%- include('partials/footer') %>
 </body>
 </html>

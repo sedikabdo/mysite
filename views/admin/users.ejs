@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="/css/admin-users.css">
 </head>
 <body>
-      <!-- القائمة العلوية -->
-      <nav class="top-nav">
+    <!-- القائمة العلوية -->
+    <nav class="top-nav">
         <a href="/forum" class="back-button"><i class="fas fa-arrow-right"></i> العودة إلى المنصة</a>
         <span class="logo-text">Colorizer</span>
     </nav>
@@ -55,12 +55,13 @@
                             </div>
                             <div class="user-actions">
                                 <% if (user.role !== 'admin') { %>
-                                    <form action="/admin/users/<%= user.id %>/set-admin" method="POST" style="display: inline;">
+                                    <form action="/admin/users/set-admin/<%= user.id %>" method="POST" style="display: inline;">
                                         <button type="submit" class="action-btn set-admin-btn">تعيين كمسؤول</button>
                                     </form>
                                 <% } %>
-                                <form action="/admin/users/<%= user.id %>/toggle-block" method="POST" style="display: inline;">
-                                    <button type="submit" class="action-btn <%= user.is_active ? 'block-btn' : 'unblock-btn' %>">
+                                <form action="/admin/users/toggle-block/<%= user.id %>" method="POST" style="display: inline;">
+                                    <button type="submit" class="action-btn toggle-block-btn <%= user.is_active ? 'block-btn' : 'unblock-btn' %>">
+                                        <i class="fas <%= user.is_active ? 'fa-ban' : 'fa-check' %>"></i>
                                         <%= user.is_active ? 'حظر' : 'إلغاء الحظر' %>
                                     </button>
                                 </form>
@@ -136,8 +137,35 @@
             font-size: 0.875rem;
             color: #2d3748;
         }
+
+        /* تحسين زر الحظر/إلغاء الحظر */
+        .toggle-block-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .block-btn {
+            background-color: #e53e3e;
+            color: #fff;
+        }
+
+        .block-btn:hover {
+            background-color: #c53030;
+        }
+
+        .unblock-btn {
+            background-color: #38a169;
+            color: #fff;
+        }
+
+        .unblock-btn:hover {
+            background-color: #2f855a;
+        }
     </style>
 </body>
-
-
 </html>

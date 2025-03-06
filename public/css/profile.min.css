@@ -526,3 +526,67 @@ button:disabled {
 .delete-btn:hover {
   background: #c0392b;
 }
+@media (max-width: 768px) {
+  .general-container {
+    flex-direction: column; /* تغيير اتجاه العناصر إلى عمودي */
+    height: auto; /* إزالة الارتفاع الثابت */
+    max-width: 100%; /* جعل العرض يتناسب مع الشاشة */
+    width: 100%;
+  }
+
+  .content {
+    margin-right: 0; /* إزالة الهامش الأيمن */
+    margin-bottom: 0.8rem; /* إضافة هامش سفلي بين العناصر */
+    flex: 1; /* جعل جميع العناصر بنفس الحجم */
+    height: 150px; /* تحديد ارتفاع ثابت للعناصر */
+  }
+
+  .content:hover {
+    box-shadow: none; /* إزالة التأثير عند التمرير */
+  }
+
+  .radio:checked + .content {
+    flex: 1; /* إلغاء التوسع عند التحديد */
+    height: 300px; /* زيادة الارتفاع عند التحديد */
+  }
+
+  .title-card {
+    font-size: 1rem; /* تصغير حجم الخط */
+    left: 1rem; /* تعديل الموضع */
+    bottom: 1rem; /* تعديل الموضع */
+    padding: 8px 12px; /* تعديل الحشوة */
+  }
+
+  .subtitle {
+    font-size: 0.9rem; /* تصغير حجم الخط الفرعي */
+  }
+
+  .gallery-image {
+    border-radius: 1.5rem; /* تصغير نصف قطر الزوايا */
+  }
+
+  .radio:checked + .content > .gallery-image {
+    border-radius: 1.5rem; /* تصغير نصف قطر الزوايا عند التحديد */
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    height: 120px; /* تصغير الارتفاع أكثر */
+  }
+
+  .radio:checked + .content {
+    height: 250px; /* تصغير الارتفاع عند التحديد */
+  }
+
+  .title-card {
+    font-size: 0.9rem; /* تصغير حجم الخط أكثر */
+    left: 0.8rem; /* تعديل الموضع */
+    bottom: 0.8rem; /* تعديل الموضع */
+    padding: 6px 10px; /* تعديل الحشوة */
+  }
+
+  .subtitle {
+    font-size: 0.8rem; /* تصغير حجم الخط الفرعي أكثر */
+  }
+}

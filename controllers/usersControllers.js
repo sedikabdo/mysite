@@ -2,20 +2,8 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
-const { google } = require("googleapis");
 const usersModels = require("../models/UsersModels");
 const db = require("../config/db");
-
-// إعدادات OAuth 2.0 مع بيانات الاعتماد من .env
-const oAuth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  "http://localhost:3000/oauth2callback"
-);
-
-oAuth2Client.setCredentials({
-  refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-});
 
 class UsersControllers {
   static findById(userId) {
@@ -90,52 +78,41 @@ class UsersControllers {
 
   static async forgotPasswordControllers(req, res) {
     const { email } = req.body;
-  
+
     try {
       const user = await usersModels.loginModel(email);
       if (!user) {
         return res.render("forgotPassword", { errorMessage: "البريد الإلكتروني غير مسجل لدينا، تحقق منه مرة أخرى." });
       }
-  
+
       const token = jwt.sign({ id: user.id }, "your_jwt_secret", { expiresIn: "15m" });
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
       await usersModels.saveOTP(user.id, otp);
-  
-      const accessToken = await oAuth2Client.getAccessToken();
-      if (!accessToken.token) throw new Error("فشل الحصول على Access Token");
-  
+
+      // إعداد Papercut SMTP
       const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          type: "OAuth2",
-          user: process.env.EMAIL_USER,
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-          accessToken: accessToken.token,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
+        host: "localhost", // Papercut يعمل محليًا
+        port: 25, // المنفذ الافتراضي لـ Papercut
+        secure: false, // لا يتطلب SSL/TLS
+        auth: null, // Papercut لا يتطلب مصادقة
       });
-  
+
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: "no-reply@yourapp.com", // عنوان البريد الافتراضي (يمكنك تخصيصه)
         to: email,
         subject: "إعادة تعيين كلمة المرور",
-        text: `رمز OTP الخاص بك هو: ${otp}. استخدم هذا الرابط للتحقق: http://localhost:3000/verify-otp?token=${token}`,
+        text: `رمز OTP الخاص بك هو: ${otp}. استخدم هذا الرابط للتحقق: http://localhost:8080/verify-otp?token=${token}`,
       };
-  
+
       await transporter.sendMail(mailOptions);
-  
+
       res.render("forgotPassword", {
-        successMessage: "تم إرسال رابط التحقق مع رمز OTP إلى بريدك الإلكتروني.",
+        successMessage: "تم إرسال رابط التحقق مع رمز OTP إلى بريدك الإلكتروني (تحقق من Papercut).",
       });
     } catch (error) {
+      console.error("Error in forgotPasswordControllers:", error);
       res.render("forgotPassword", {
-        errorMessage: "مشكلة في الاتصال، تحقق من الشبكة أو حاول مرة أخرى.",
+        errorMessage: "حدث خطأ أثناء إرسال رمز OTP، تأكد من تشغيل Papercut وحاول مرة أخرى.",
       });
     }
   }
@@ -178,42 +155,32 @@ class UsersControllers {
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
       await usersModels.saveOTP(decoded.id, otp);
 
-      const accessToken = await oAuth2Client.getAccessToken();
-      if (!accessToken.token) throw new Error("فشل الحصول على Access Token");
-
+      // إعداد Papercut SMTP
       const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          type: "OAuth2",
-          user: process.env.EMAIL_USER,
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-          accessToken: accessToken.token,
-        },
+        host: "localhost", // Papercut يعمل محليًا
+        port: 25, // المنفذ الافتراضي لـ Papercut
+        secure: false, // لا يتطلب SSL/TLS
+        auth: null, // Papercut لا يتطلب مصادقة
       });
 
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: "no-reply@yourapp.com", // عنوان البريد الافتراضي (يمكنك تخصيصه)
         to: user.email,
         subject: "إعادة إرسال رمز OTP",
-        text: `رمز OTP الجديد الخاص بك هو: ${otp}. استخدم هذا الرابط للتحقق: http://localhost:3000/verify-otp?token=${token}`,
+        text: `رمز OTP الجديد الخاص بك هو: ${otp}. استخدم هذا الرابط للتحقق: http://localhost:8080/verify-otp?token=${token}`,
       };
 
       await transporter.sendMail(mailOptions);
 
       res.render("otpVerification", {
-        successMessage: "تم إرسال رمز OTP جديد إلى بريدك الإلكتروني.",
+        successMessage: "تم إرسال رمز OTP جديد إلى بريدك الإلكتروني (تحقق من Papercut).",
         token,
         email: user.email,
       });
     } catch (error) {
+      console.error("Error in resendOTPControllers:", error);
       res.render("otpVerification", {
-        errorMessage: error.message.includes("Invalid login")
-          ? "فشلت المصادقة مع Gmail، تحقق من إعدادات الحساب أو الـ Refresh Token."
-          : "حدث خطأ أثناء إعادة إرسال OTP، حاول مرة أخرى.",
+        errorMessage: "حدث خطأ أثناء إعادة إرسال OTP، تأكد من تشغيل Papercut وحاول مرة أخرى.",
         token,
         email: "",
       });

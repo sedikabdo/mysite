@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +10,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="/css/admin-dashboard.css" media="print" onload="this.media='all'">
 </head>
+
 <body>
     <!-- القائمة العلوية -->
     <nav class="top-nav">
         <a href="/forum" class="back-button"><i class="fas fa-arrow-right"></i> العودة إلى المنصة</a>
         <span class="logo-text">Colorizer</span>
     </nav>
-
+    <%- include('../partials/headeraction') %>
     <div class="dashboard-container">
         <header class="dashboard-header">
             <h1>لوحة التحكم</h1>
@@ -80,10 +81,9 @@
     </footer>
 
     <!-- تضمين الهيدر والفوتر -->
-    <%- include('../partials/headerhome') %>
-    <%- include('../partials/headeraction') %>
-    <%- include('../partials/footer') %>
 
+  
+  
     <!-- CSS للقائمة والفوتر -->
     <style>
         /* تنسيق القائمة العلوية */

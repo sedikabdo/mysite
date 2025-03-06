@@ -15,8 +15,14 @@ const initSocket = (server) => {
 
     // الانضمام إلى غرفة المستخدم الفردية بناءً على userId
     socket.on("join", (userId) => {
-      socket.join(userId); // غرفة خاصة بالمستخدم الفردي
-      console.log(`User ${userId} joined their own room: ${userId}`);
+      if (userId) {
+        socket.userId = userId; // تخزين userId في كائن المقبس
+        socket.join(userId); // غرفة خاصة بالمستخدم الفردي
+        console.log(`User ${userId} joined their own room: ${userId}`);
+
+        // بث حالة الاتصال لتحديث قائمة الأصدقاء
+        io.emit("userStatus", { userId, online: true });
+      }
     });
 
     // الانضمام إلى غرفة الدردشة بين مستخدمين (للمحادثات الثنائية)
@@ -31,7 +37,7 @@ const initSocket = (server) => {
       console.log("Received message:", message);
       const room = [message.sender_id, message.receiver_id].sort().join("_");
       io.to(room).emit("newMessage", message); // بث الرسالة للغرفة الثنائية
-      io.to(message.receiver_id).emit("newMessage", message); // بث الرسالة لغرفة المستلم الفردية لتحديث أيقونة الرسائل
+      io.to(message.receiver_id).emit("newMessage", message); // بث الرسالة لغرفة المستلم الفردية
     });
 
     // استقبال تحديث الصورة وبثه لجميع المتصلين
@@ -46,7 +52,12 @@ const initSocket = (server) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
+      const userId = socket.userId;
+      console.log("User disconnected:", userId || socket.id);
+      if (userId) {
+        // بث حالة الانفصال لتحديث قائمة الأصدقاء
+        io.emit("userStatus", { userId, online: false });
+      }
     });
   });
 };

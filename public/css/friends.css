@@ -17,8 +17,7 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: "Cairo", sans-serif;
+ 
 }
 
 body {
@@ -204,7 +203,7 @@ button:hover {
 }
 
 /* تصميم الصور */
-img {
+.all img {
   border-radius: 50%;
   width: 60px;
   height: 60px;

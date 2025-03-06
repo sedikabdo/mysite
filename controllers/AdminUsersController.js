@@ -67,6 +67,7 @@ class AdminUsersController {
 
       const targetUserId = req.params.id;
       const targetUser = await NotificationModel.getUserById(targetUserId);
+      // تبديل الحالة: إذا كان نشطًا (1) يصبح محظورًا (0)، والعكس
       const newStatus = targetUser.is_active ? 0 : 1;
       await NotificationModel.toggleUserBlock(targetUserId, newStatus);
       res.redirect("/admin/users");

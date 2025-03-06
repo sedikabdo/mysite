@@ -93,7 +93,6 @@ class FriendshipModel {
       });
     });
   }
-
   static async acceptFriendRequest(requestId, receiverId) {
     return new Promise((resolve, reject) => {
       const getRequestQuery = `
@@ -102,23 +101,23 @@ class FriendshipModel {
       db.query(getRequestQuery, [requestId, receiverId], async (err, results) => {
         if (err) return reject(err);
         if (results.length === 0) return reject(new Error("طلب الصداقة غير موجود أو ليس لك"));
-
+  
         const { sender_id, receiver_id } = results[0];
-
+  
         const senderFriendsCount = await this.getFriendsCount(sender_id);
         const receiverFriendsCount = await this.getFriendsCount(receiver_id);
-
+  
         if (senderFriendsCount >= 20) {
           return reject(new Error("المرسل وصل للحد الأقصى لعدد الأصدقاء (20)"));
         }
         if (receiverFriendsCount >= 20) {
           return reject(new Error("لقد وصلت للحد الأقصى لعدد الأصدقاء (20)"));
         }
-
+  
         const updateRequestQuery = `UPDATE friend_requests SET status = 'accepted', is_read = 1 WHERE id = ?`;
         db.query(updateRequestQuery, [requestId], (err) => {
           if (err) return reject(err);
-
+  
           const insertFriendshipQuery = `
             INSERT INTO friendships (user_id, friend_id, status)
             VALUES (?, ?, 'accepted'), (?, ?, 'accepted')
@@ -132,7 +131,6 @@ class FriendshipModel {
       });
     });
   }
-
   static getFriendsCount(userId) {
     return new Promise((resolve, reject) => {
       const query = `
@@ -225,7 +223,6 @@ class FriendshipModel {
       });
     });
   }
-
   static checkFriendship(userId, friendId) {
     return new Promise((resolve, reject) => {
       const query = `
@@ -238,7 +235,6 @@ class FriendshipModel {
       });
     });
   }
-
   static searchUsers(userId, searchQuery) {
     return new Promise((resolve, reject) => {
       const query = `
@@ -397,7 +393,7 @@ class FriendshipModel {
         else if (results.length > 0) {
           resolve(results[0].status);
         } else {
-          resolve('no_friend');
+          resolve("no_friend");
         }
       });
     });

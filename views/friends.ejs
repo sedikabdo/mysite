@@ -5,21 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>صفحة الأصدقاء</title>
   <link rel="stylesheet" href="/css/friends.css" />
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script> <!-- استبدل بمفتاح Font Awesome الخاص بك -->
 </head>
 <body>
   <%- include('partials/headerhome') %>
   <%- include('partials/headeraction') %>
 
   <!-- عرض رسائل النجاح أو الخطأ -->
-  <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <% if (successMessage) { %>
     <p class="message-success"><%= successMessage %></p>
   <% } %>
-  <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+  <% if (errorMessage) { %>
     <p class="message-error"><%= errorMessage %></p>
   <% } %>
 
   <div class="all">
-    <!-- البحث عن صديق -->
+    <!-- الجانب الأيمن: البحث عن صديق والمحظورين -->
     <div class="right">
       <text class="text">البحث عن صديق</text>
       <section>
@@ -29,11 +30,11 @@
             <button type="submit"><i class="fas fa-search"></i></button>
           </form>
         </div>
-        <% if (typeof searchResults !== 'undefined' && searchResults && searchResults.length > 0) { %>
+        <% if (searchResults && searchResults.length > 0) { %>
           <h2>نتائج البحث</h2>
           <ul class="ul">
-            <% searchResults.forEach(function(result) { %>
-              <li class="li">
+            <% searchResults.forEach(result => { %>
+              <li class="li" data-id="<%= result.id %>">
                 <div class="friend-info">
                   <img src="<%= result.avatar %>" 
                        alt="صورة المستخدم" 
@@ -55,7 +56,7 @@
               </li>
             <% }); %>
           </ul>
-        <% } else if (typeof searchResults !== 'undefined' && searchResults && searchResults.length === 0) { %>
+        <% } else if (searchResults && searchResults.length === 0) { %>
           <p class="no-results">لا توجد نتائج مطابقة</p>
         <% } %>
       </section>
@@ -67,7 +68,7 @@
           <p class="no-results">لا يوجد أصدقاء محظورين</p>
         <% } else { %>
           <ul class="ul" id="blocked-friends-list">
-            <% blockedFriends.forEach(function(blocked) { %>
+            <% blockedFriends.forEach(blocked => { %>
               <li class="li" data-id="<%= blocked.id %>">
                 <div class="friend-info">
                   <img src="<%= blocked.avatar %>" 
@@ -85,7 +86,7 @@
       </section>
     </div>
 
-    <!-- الأصدقاء في الوسط -->
+    <!-- الوسط: قائمة الأصدقاء -->
     <div class="center">
       <section>
         <text class="text">أصدقاؤك <span id="friends-count">(<%= friends ? friends.length : 0 %>)</span></text>
@@ -93,20 +94,25 @@
           <p class="no-results">لا يوجد أصدقاء حاليًا</p>
         <% } else { %>
           <ul class="ul" id="friends-list">
-            <% friends.forEach(function(friend) { %>
+            <% friends.forEach(friend => { %>
               <li class="li" data-id="<%= friend.id %>">
                 <div class="friend-info">
                   <img src="<%= friend.avatar %>" 
                        alt="صورة الصديق" 
                        onerror="this.src='/uploads/images/pngwing.com.png'" />
                   <span><%= friend.name %></span>
-                  <span class="<%= friend.online ? 'online' : 'offline' %>"><%= friend.online ? 'متصل' : 'غير متصل' %></span>
+                  <span class="status <%= friend.online ? 'online' : 'offline' %>">
+                    <%= friend.online ? 'متصل' : 'غير متصل' %>
+                  </span>
                 </div>
                 <div class="friend-actions">
                   <a href="/friends/profile/<%= friend.id %>" class="action-icon" title="عرض الملف الشخصي"><i class="fas fa-user"></i></a>
                   <a href="/chat/<%= friend.id %>" class="action-icon" title="الدردشة"><i class="fas fa-comment"></i></a>
                   <form action="/friends/block/<%= friend.id %>" method="post" style="display: inline;">
                     <button type="submit" class="action-icon" title="حظر"><i class="fas fa-ban"></i></button>
+                  </form>
+                  <form action="/friends/remove/<%= friend.id %>" method="post" style="display: inline;">
+                    <button type="submit" class="action-icon" title="إزالة"><i class="fas fa-user-slash"></i></button>
                   </form>
                 </div>
               </li>
@@ -116,7 +122,7 @@
       </section>
     </div>
 
-    <!-- طلبات الصداقة -->
+    <!-- الجانب الأيسر: طلبات الصداقة واقتراحات الأصدقاء -->
     <div class="left">
       <text class="text">طلبات الصداقة <% if (unreadCount > 0) { %><span class="unread-count"><%= unreadCount %></span><% } %></text>
       <section>
@@ -124,7 +130,7 @@
           <p class="no-results">لا توجد طلبات صداقة جديدة</p>
         <% } else { %>
           <ul class="ul" id="friend-requests-list">
-            <% friendRequests.forEach(function(request) { %>
+            <% friendRequests.forEach(request => { %>
               <li class="li" data-id="<%= request.id %>">
                 <div class="friend-info">
                   <img src="<%= request.sender_avatar %>" 
@@ -145,13 +151,14 @@
           </ul>
         <% } %>
       </section>
+
       <text class="text">اقتراحات الأصدقاء</text>
       <section>
         <% if (!users || users.length === 0) { %>
           <p class="no-results">لا توجد اقتراحات حاليًا</p>
         <% } else { %>
           <ul class="ul" id="suggested-friends-list">
-            <% users.forEach(function(user) { %>
+            <% users.forEach(user => { %>
               <li class="li" data-id="<%= user.id %>">
                 <div class="friend-info">
                   <img src="<%= user.avatar %>" 
@@ -160,9 +167,9 @@
                   <span><%= user.name %></span>
                 </div>
                 <div class="suggestion-details">
-                  <span><%= user.country || 'غير محدد' %></span>
-                  <span>العمر: <%= user.age || 'غير محدد' %></span>
-                  <span><%= user.language || 'غير محدد' %></span>
+                  <span><%= user.country %></span>
+                  <span>العمر: <%= user.age %></span>
+                  <span><%= user.language %></span>
                 </div>
                 <form action="/friends/send-request" method="post">
                   <input type="hidden" name="friendId" value="<%= user.id %>" />
@@ -178,128 +185,191 @@
 
   <footer><%- include('partials/footer') %></footer>
 
+  <!-- السكربت للتفاعل في الوقت الفعلي عبر WebSocket -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const userId = "<%= locals.userId || '' %>";
+    const userId = "<%= userId || '' %>";
 
-    socket.emit("join", userId);
+    if (userId) {
+      socket.emit("join", userId); // الانضمام إلى غرفة المستخدم
+    }
 
+    // استقبال طلب صداقة جديد
     socket.on("friendRequestReceived", ({ senderId, senderName }) => {
       fetch(`/friends/friend-request/${senderId}`)
         .then(response => response.json())
         .then(request => {
           const requestList = document.getElementById("friend-requests-list");
-          const li = document.createElement("li");
-          li.className = "li";
-          li.dataset.id = request.id;
-          li.innerHTML = `
-            <div class="friend-info">
-              <img src="${request.sender_avatar}" 
-                   alt="صورة مرسل الطلب" 
-                   onerror="this.src='/uploads/images/pngwing.com.png'" />
-              <span>${request.sender_name}</span>
-            </div>
-            <div class="friend-actions">
-              <form action="/friends/accept-request/${request.id}" method="post">
-                <button type="submit" class="action-button accept">قبول</button>
-              </form>
-              <form action="/friends/reject-request/${request.id}" method="post">
-                <button type="submit" class="action-button reject">رفض</button>
-              </form>
-            </div>
-          `;
-          requestList.prepend(li);
-
-          const unreadCountElement = document.querySelector(".unread-count");
-          let unreadCount = parseInt(unreadCountElement?.textContent) || 0;
-          if (unreadCountElement) {
-            unreadCountElement.textContent = unreadCount + 1;
-          } else {
-            const textElement = document.querySelector(".left .text");
-            textElement.innerHTML += ` <span class="unread-count">1</span>`;
+          if (!requestList.querySelector(`li[data-id="${request.id}"]`)) {
+            const li = document.createElement("li");
+            li.className = "li";
+            li.dataset.id = request.id;
+            li.innerHTML = `
+              <div class="friend-info">
+                <img src="${request.sender_avatar}" 
+                     alt="صورة مرسل الطلب" 
+                     onerror="this.src='/uploads/images/pngwing.com.png'" />
+                <span>${request.sender_name}</span>
+              </div>
+              <div class="friend-actions">
+                <form action="/friends/accept-request/${request.id}" method="post">
+                  <button type="submit" class="action-button accept">قبول</button>
+                </form>
+                <form action="/friends/reject-request/${request.id}" method="post">
+                  <button type="submit" class="action-button reject">رفض</button>
+                </form>
+              </div>
+            `;
+            requestList.prepend(li);
+            updateUnreadCount(1);
           }
-        });
+        })
+        .catch(error => console.error("Error fetching friend request:", error));
     });
 
+    // قبول طلب صداقة
     socket.on("friendRequestAccepted", ({ receiverId }) => {
       fetch(`/friends/friend/${receiverId}`)
         .then(response => response.json())
         .then(friend => {
           const friendsList = document.getElementById("friends-list");
-          const li = document.createElement("li");
-          li.className = "li";
-          li.dataset.id = friend.id;
-          li.innerHTML = `
-            <div class="friend-info">
-              <img src="${friend.avatar}" 
-                   alt="صورة الصديق" 
-                   onerror="this.src='/uploads/images/pngwing.com.png'" />
-              <span>${friend.name}</span>
-              <span class="${friend.online ? 'online' : 'offline'}">${friend.online ? 'متصل' : 'غير متصل'}</span>
-            </div>
-            <div class="friend-actions">
-              <a href="/friends/profile/${friend.id}" class="action-icon" title="عرض الملف الشخصي"><i class="fas fa-user"></i></a>
-              <a href="/chat/${friend.id}" class="action-icon" title="الدردشة"><i class="fas fa-comment"></i></a>
-              <form action="/friends/block/${friend.id}" method="post" style="display: inline;">
-                <button type="submit" class="action-icon" title="حظر"><i class="fas fa-ban"></i></button>
-              </form>
-            </div>
-          `;
-          friendsList.prepend(li);
+          if (!friendsList.querySelector(`li[data-id="${friend.id}"]`)) {
+            const li = document.createElement("li");
+            li.className = "li";
+            li.dataset.id = friend.id;
+            li.innerHTML = `
+              <div class="friend-info">
+                <img src="${friend.avatar}" 
+                     alt="صورة الصديق" 
+                     onerror="this.src='/uploads/images/pngwing.com.png'" />
+                <span>${friend.name}</span>
+                <span class="${friend.online ? 'online' : 'offline'}">${friend.online ? 'متصل' : 'غير متصل'}</span>
+              </div>
+              <div class="friend-actions">
+                <a href="/friends/profile/${friend.id}" class="action-icon" title="عرض الملف الشخصي"><i class="fas fa-user"></i></a>
+                <a href="/chat/${friend.id}" class="action-icon" title="الدردشة"><i class="fas fa-comment"></i></a>
+                <form action="/friends/block/${friend.id}" method="post" style="display: inline;">
+                  <button type="submit" class="action-icon" title="حظر"><i class="fas fa-ban"></i></button>
+                </form>
+                <form action="/friends/remove/${friend.id}" method="post" style="display: inline;">
+                  <button type="submit" class="action-icon" title="إزالة"><i class="fas fa-user-slash"></i></button>
+                </form>
+              </div>
+            `;
+            friendsList.prepend(li);
+            updateFriendsCount(1);
+          }
 
-          const friendsCountElement = document.getElementById("friends-count");
-          const currentCount = parseInt(friendsCountElement.textContent.match(/\d+/)[0]) || 0;
-          friendsCountElement.textContent = `(${currentCount + 1})`;
-        });
+          const requestElement = document.querySelector(`#friend-requests-list li[data-id="${friend.id}"]`);
+          if (requestElement) requestElement.remove();
+          updateUnreadCount(-1);
+        })
+        .catch(error => console.error("Error fetching friend:", error));
     });
 
+    // إلغاء طلب صداقة
     socket.on("friendRequestCanceled", ({ senderId }) => {
       const requestElement = document.querySelector(`#friend-requests-list li[data-id="${senderId}"]`);
-      if (requestElement) requestElement.remove();
-
-      const unreadCountElement = document.querySelector(".unread-count");
-      let unreadCount = parseInt(unreadCountElement?.textContent) || 0;
-      if (unreadCount > 0) {
-        unreadCountElement.textContent = unreadCount - 1;
-        if (unreadCount - 1 === 0) unreadCountElement.remove();
+      if (requestElement) {
+        requestElement.remove();
+        updateUnreadCount(-1);
       }
     });
 
+    // رفض طلب صداقة
+    socket.on("friendRequestRejected", ({ receiverId }) => {
+      const requestElement = document.querySelector(`#friend-requests-list li[data-id="${receiverId}"]`);
+      if (requestElement) {
+        requestElement.remove();
+        updateUnreadCount(-1);
+      }
+    });
+
+    // حظر صديق
     socket.on("friendBlocked", ({ friendId }) => {
       const friendElement = document.querySelector(`#friends-list li[data-id="${friendId}"]`);
-      if (friendElement) friendElement.remove();
+      if (friendElement) {
+        friendElement.remove();
+        updateFriendsCount(-1);
+      }
 
-      const blockedList = document.getElementById("blocked-friends-list");
       fetch(`/friends/blocked/${friendId}`)
         .then(response => response.json())
         .then(blocked => {
-          const li = document.createElement("li");
-          li.className = "li";
-          li.dataset.id = blocked.id;
-          li.innerHTML = `
-            <div class="friend-info">
-              <img src="${blocked.avatar}" 
-                   alt="صورة المحظور" 
-                   onerror="this.src='/uploads/images/pngwing.com.png'" />
-              <span>${blocked.name}</span>
-            </div>
-            <form action="/friends/unblock/${blocked.id}" method="post">
-              <button type="submit">إلغاء الحظر</button>
-            </form>
-          `;
-          blockedList.prepend(li);
-        });
-
-      const friendsCountElement = document.getElementById("friends-count");
-      const currentCount = parseInt(friendsCountElement.textContent.match(/\d+/)[0]) || 0;
-      friendsCountElement.textContent = `(${currentCount - 1})`;
+          const blockedList = document.getElementById("blocked-friends-list");
+          if (!blockedList.querySelector(`li[data-id="${blocked.id}"]`)) {
+            const li = document.createElement("li");
+            li.className = "li";
+            li.dataset.id = blocked.id;
+            li.innerHTML = `
+              <div class="friend-info">
+                <img src="${blocked.avatar}" 
+                     alt="صورة المحظور" 
+                     onerror="this.src='/uploads/images/pngwing.com.png'" />
+                <span>${blocked.name}</span>
+              </div>
+              <form action="/friends/unblock/${blocked.id}" method="post">
+                <button type="submit">إلغاء الحظر</button>
+              </form>
+            `;
+            blockedList.prepend(li);
+          }
+        })
+        .catch(error => console.error("Error fetching blocked friend:", error));
     });
 
+    // إلغاء حظر صديق
     socket.on("friendUnblocked", ({ friendId }) => {
       const blockedElement = document.querySelector(`#blocked-friends-list li[data-id="${friendId}"]`);
       if (blockedElement) blockedElement.remove();
     });
+
+    // إزالة صديق
+    socket.on("friendRemoved", ({ removerId }) => {
+      const friendElement = document.querySelector(`#friends-list li[data-id="${removerId}"]`);
+      if (friendElement) {
+        friendElement.remove();
+        updateFriendsCount(-1);
+      }
+    });
+
+    // تحديث حالة الاتصال في الوقت الفعلي
+    socket.on("userStatus", ({ userId, online }) => {
+      const friendElement = document.querySelector(`#friends-list li[data-id="${userId}"]`);
+      if (friendElement) {
+        const statusElement = friendElement.querySelector(".status");
+        if (statusElement) {
+          statusElement.textContent = online ? "متصل" : "غير متصل";
+          statusElement.className = "status " + (online ? "online" : "offline");
+        }
+      }
+    });
+
+    // دالة لتحديث عدد الأصدقاء
+    function updateFriendsCount(delta) {
+      const friendsCountElement = document.getElementById("friends-count");
+      const currentCount = parseInt(friendsCountElement.textContent.match(/\d+/)[0]) || 0;
+      friendsCountElement.textContent = `(${currentCount + delta})`;
+    }
+
+    // دالة لتحديث عدد الإشعارات غير المقروءة
+    function updateUnreadCount(delta) {
+      const unreadCountElement = document.querySelector(".unread-count");
+      let unreadCount = parseInt(unreadCountElement?.textContent) || 0;
+      unreadCount += delta;
+
+      if (unreadCount > 0) {
+        if (unreadCountElement) {
+          unreadCountElement.textContent = unreadCount;
+        } else {
+          const textElement = document.querySelector(".left .text");
+          textElement.innerHTML += ` <span class="unread-count">${unreadCount}</span>`;
+        }
+      } else if (unreadCountElement) {
+        unreadCountElement.remove();
+      }
+    }
   </script>
 </body>
 </html>
