@@ -13,4 +13,5 @@
     - "# yarn install"
     - npm install
     - npm test
+    - npm start
     shell: BASH
