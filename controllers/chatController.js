@@ -1,4 +1,4 @@
-const ChatModel = require("../models/ChatModel");
+const ChatModel = require("../models/chatModel");
 const NotificationModel = require("../models/NotificationModel");
 const jwt = require("jsonwebtoken");
 const { getIO } = require("../socket");
