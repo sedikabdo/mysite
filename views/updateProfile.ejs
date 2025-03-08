@@ -8,8 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <%- include('partials/headerhome') %>
-  <%- include('partials/headeraction') %>
+  <%- include('headerhome') %>
+  <%- include('headeraction') %>
 
   <form action="/updateProfile" method="POST" enctype="multipart/form-data">
     <div class="form-group">
@@ -61,6 +61,6 @@
     <button type="submit">تحديث الملف الشخصي</button>
   </form>
 
-  <%- include('partials/footer') %>
+  <%- include('footer') %>
 </body>
 </html>

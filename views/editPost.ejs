@@ -4,182 +4,182 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>تعديل المنشور</title>
+  <link rel="stylesheet" href="/css/edit-post.css" media="all" />
   <style>
     /* إعادة ضبط الهوامش والحشو */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    /* تنسيق عام للصفحة */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f9fa;
-      color: #333;
-      line-height: 1.6;
-      padding: 0px;
-    }
+/* تنسيق عام للصفحة */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  line-height: 1.6;
+  padding: 0px;
+}
 
-    /* تنسيق العنوان */
-    h2 {
-      color: #6a1b9a; /* بنفسجي غامق */
-      margin-bottom: 20px;
-      font-size: 28px;
-      text-align: center;
-      font-weight: 700;
-    }
+/* تنسيق العنوان */
+h2 {
+  color: #6a1b9a; /* بنفسجي غامق */
+  margin-bottom: 20px;
+  font-size: 28px;
+  text-align: center;
+  font-weight: 700;
+}
 
-    /* تنسيق النموذج */
-    form {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      max-width: 800px;
-      margin: 0 auto;
-      direction: rtl;
-    }
+/* تنسيق النموذج */
+form {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+  direction: rtl;
+}
 
-    /* تنسيق العناصر داخل النموذج */
-    .form-group {
-      margin-bottom: 20px;
-    }
+/* تنسيق العناصر داخل النموذج */
+.form-group {
+  margin-bottom: 20px;
+}
 
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 8px;
-      color: #6a1b9a; /* بنفسجي غامق */
-    }
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+  color: #6a1b9a; /* بنفسجي غامق */
+}
 
-    textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ced4da;
-      border-radius: 8px;
-      font-size: 16px;
-      resize: vertical;
-      min-height: 150px;
-      transition: border-color 0.3s ease;
-    }
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 150px;
+  transition: border-color 0.3s ease;
+}
 
-    textarea:focus {
-      border-color: #9c27b0; /* بنفسجي */
-      outline: none;
-    }
+textarea:focus {
+  border-color: #9c27b0; /* بنفسجي */
+  outline: none;
+}
 
-    input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ced4da;
-      border-radius: 8px;
-      background-color: #f8f9fa;
-      margin-top: 5px;
-      transition: border-color 0.3s ease;
-    }
+input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  margin-top: 5px;
+  transition: border-color 0.3s ease;
+}
 
-    input[type="file"]:focus {
-      border-color: #9c27b0; /* بنفسجي */
-      outline: none;
-    }
+input[type="file"]:focus {
+  border-color: #9c27b0; /* بنفسجي */
+  outline: none;
+}
 
-    img {
-      display: block;
-      margin-top: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      max-width: 100%;
-      height: auto;
-    }
+img {
+  display: block;
+  margin-top: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  height: auto;
+}
 
-    button {
-      background-color: #9c27b0; /* بنفسجي */
-      color: white;
-      border: none;
-      padding: 12px 18px; /* تعديل حجم الزر */
-      font-size: 16px; /* تعديل حجم الخط */
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
+button {
+  background-color: #9c27b0; /* بنفسجي */
+  color: white;
+  border: none;
+  padding: 12px 18px; /* تعديل حجم الزر */
+  font-size: 16px; /* تعديل حجم الخط */
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
 
-    button:hover {
-      background-color: #7b1fa2; /* بنفسجي غامق */
-      transform: translateY(-2px);
-    }
+button:hover {
+  background-color: #7b1fa2; /* بنفسجي غامق */
+  transform: translateY(-2px);
+}
 
-    button:active {
-      transform: translateY(0);
-    }
+button:active {
+  transform: translateY(0);
+}
 
-    /* التجاوب مع الشاشات الصغيرة */
-    @media (max-width: 768px) {
-      form {
-        padding: 20px;
-      }
+/* التجاوب مع الشاشات الصغيرة */
+@media (max-width: 768px) {
+  form {
+    padding: 20px;
+  }
 
-      h2 {
-        font-size: 24px;
-      }
+  h2 {
+    font-size: 24px;
+  }
 
-      textarea {
-        font-size: 14px;
-      }
+  textarea {
+    font-size: 14px;
+  }
 
-      button {
-        font-size: 14px; /* تعديل حجم الخط للشاشات الصغيرة */
-        padding: 10px 16px; /* تعديل حجم الزر للشاشات الصغيرة */
-      }
-    }
+  button {
+    font-size: 14px; /* تعديل حجم الخط للشاشات الصغيرة */
+    padding: 10px 16px; /* تعديل حجم الزر للشاشات الصغيرة */
+  }
+}
 
-    /* تحسين تنسيق الصور في الشاشات الصغيرة */
-    @media (max-width: 480px) {
-      img {
-        width: 100%;
-      }
-    }
+/* تحسين تنسيق الصور في الشاشات الصغيرة */
+@media (max-width: 480px) {
+  img {
+    width: 100%;
+  }
+}
 
-    /* تحسينات إضافية */
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
+/* تحسينات إضافية */
+.form-group:last-child {
+  margin-bottom: 0;
+}
 
-    .file-input-container {
-      position: relative;
-    }
+.file-input-container {
+  position: relative;
+}
 
-    .file-input-container input[type="file"] {
-      opacity: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-    }
+.file-input-container input[type="file"] {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
 
-    .file-input-label {
-      display: block;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border: 1px solid #ced4da;
-      border-radius: 8px;
-      text-align: center;
-      color: #6a1b9a; /* بنفسجي غامق */
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+.file-input-label {
+  display: block;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  text-align: center;
+  color: #6a1b9a; /* بنفسجي غامق */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
-    .file-input-label:hover {
-      background-color: #e1bee7; /* بنفسجي فاتح */
-    }
+.file-input-label:hover {
+  background-color: #e1bee7; /* بنفسجي فاتح */
+}
   </style>
 </head>
 <%- include('partials/headerhome') %>
 <%- include('partials/headeraction') %>
-<body>
 <body>
   <h2>تعديل المنشور</h2>
   <form action="/forum/post/<%= post.id %>/edit" method="POST" enctype="multipart/form-data">
@@ -207,5 +207,4 @@
 <footer style="margin-top: 20vh;">
   <%- include('partials/footer') %>
 </footer>
-
 </html>

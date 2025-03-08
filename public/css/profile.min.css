@@ -1,33 +1,34 @@
 :root {
-  --background-color: #f0f2f5;
-  --card-bg: #fff;
-  --text-color: #333;
-  --primary-color: #6c5ce7;
-  --secondary-color: #a29bfe;
-  --accent-color: #e84393;
-  --border-color: #ddd;
-  --muted-text: #888;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --border-radius: 8px;
-  --transition: 0.3s ease;
+  --background-color: #f4f7fa;
+  --card-bg: #ffffff;
+  --text-color: #2c3e50;
+  --primary-color: #5d5af5;
+  --secondary-color: #8e88ff;
+  --accent-color: #ff6b81;
+  --border-color: #e0e4e8;
+  --muted-text: #7f8c8d;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Cairo", sans-serif;
+  font-family: "Cairo", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
-  background-color: var(--background-color);
+  background: var(--background-color);
   color: var(--text-color);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* تحسين الوصولية: نصوص مخفية لقارئات الشاشة */
+/* تحسين الوصولية */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -39,41 +40,59 @@ body {
   border: 0;
 }
 
-button:focus,
-a:focus {
-  outline: 2px solid var(--primary-color);
+:focus-visible {
+  outline: 3px solid var(--primary-color);
   outline-offset: 2px;
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* التنبيهات */
+.alert {
+  padding: 12px 20px;
+  margin: 10px 0;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* الرئيسي */
 .main {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
+  max-width: 1280px;
+  margin: 30px auto;
+  padding: 25px;
   background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   direction: rtl;
 }
 
+/* رأس الملف الشخصي */
 .profile-header {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 20px;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  gap: 20px;
+  padding: 25px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   border-radius: var(--border-radius);
   color: #fff;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 20px rgba(107, 72, 255, 0.2);
-  will-change: transform;
 }
 
 .profile-header::before {
@@ -83,14 +102,14 @@ button:disabled {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-  animation: rotate 15s linear infinite;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
   z-index: 0;
 }
 
 @keyframes rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .profile-header > * {
@@ -98,108 +117,117 @@ button:disabled {
   z-index: 1;
 }
 
-.avatar-section {
-  margin-bottom: 20px;
+.profile-picture {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  object-fit: cover;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: transform var(--transition);
 }
 
-.profile-picture {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 4px solid #fff;
-  object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.profile-picture:hover {
+  transform: scale(1.05);
 }
 
 .user-info {
   text-align: center;
 }
 
-#username {
-  font-size: 2rem;
-  margin-bottom: 10px;
+.username {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stats {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 20px;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.1rem;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 .stat-item i {
   color: var(--accent-color);
+  font-size: 1.3rem;
 }
 
 .share-link {
   color: #fff;
-  text-decoration: underline;
+  text-decoration: none;
+  transition: color var(--transition);
 }
 
 .share-link:hover {
-  color: #f1f1f1;
+  color: #e0e0e0;
 }
 
 .action-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 15px;
+  justify-content: flex-end;
 }
 
 .action-button {
-  background-color: var(--card-bg);
+  background: #fff;
   color: var(--primary-color);
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: 25px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: background-color var(--transition), transform var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
 }
 
-.action-button:hover {
-  background-color: #f1f1f1;
-  transform: translateY(-2px);
+.action-button:hover:not(:disabled) {
+  background: var(--secondary-color);
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* التفاصيل الشخصية */
 .profile-details {
-  padding: 20px;
+  padding: 25px;
   background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .details-section h2 {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   margin-bottom: 20px;
   color: var(--primary-color);
+  font-weight: 600;
 }
 
 .info-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
 }
 
 .info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border-color);
-  font-size: 1.2rem;
 }
 
 .info-label {
-  font-weight: bold;
+  font-weight: 600;
   color: var(--primary-color);
 }
 
@@ -207,8 +235,213 @@ button:disabled {
   color: var(--text-color);
 }
 
-.quote-section {
+.info-value a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.info-value a:hover {
+  color: var(--secondary-color);
+}
+
+.edit-profile-button {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+
+.edit-profile-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* معرض التصاميم */
+.design-gallery-section {
+  margin: 30px 0;
+}
+
+.gallery-title {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 25px;
+  font-weight: 700;
+}
+
+.general-container {
+  display: flex;
+  height: 22rem;
+  max-width: 60vw;
+  width: 100%;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+.radio {
+  display: none;
+}
+
+.content {
+  flex: 1;
+  position: relative;
+  border-radius: 2rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: flex var(--transition), box-shadow var(--transition);
+}
+
+.content:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2rem;
+  transition: transform var(--transition);
+}
+
+.title-card {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px 20px;
+  border-radius: 10px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: var(--transition);
+  text-align: right;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.radio:checked + .content {
+  flex: 8;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.radio:checked + .content .title-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.no-designs {
+  text-align: center;
+  color: var(--muted-text);
+  font-size: 1.2rem;
   padding: 20px;
+}
+
+.add-design-container {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.add-design-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+
+.add-design-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.add-design-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 450px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f8f9fb;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.add-design-form input[type="file"],
+.add-design-form input[type="text"] {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 1rem;
+}
+
+.share-btn, .cancel-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.share-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+}
+
+.share-btn:hover {
+  transform: translateY(-3px);
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+}
+
+.cancel-btn:hover {
+  transform: translateY(-3px);
+}
+
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
+
+/* الاقتباس */
+.quote-section {
+  padding: 25px;
   background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
@@ -220,189 +453,67 @@ button:disabled {
 
 #quote-editor {
   width: 100%;
-  height: 120px;
-  padding: 15px;
+  height: 140px;
+  padding: 20px;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
   resize: none;
-  background: #f9f9f9;
+  background: #f9fafb;
   color: var(--text-color);
   text-align: center;
+  transition: border-color var(--transition);
 }
 
 #quote-editor:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+  border-color: var(--primary-color);
 }
 
 .quote-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   color: var(--primary-color);
-  font-size: 1.2rem;
+  font-size: 1.5rem;
 }
 
-.edit-quote-button,
-.save-quote-button {
+.edit-quote-button, .save-quote-button {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background-color: var(--primary-color);
+  bottom: 15px;
+  left: 15px;
+  background: var(--primary-color);
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
-  transition: background-color var(--transition), transform var(--transition);
-}
-
-.edit-quote-button:hover,
-.save-quote-button:hover {
-  background-color: var(--secondary-color);
-  transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-  .profile-header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .stats {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .info-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-}
-
-.edit-profile-button {
-  background-color: var(--primary-color);
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-top: 20px;
-  transition: background-color var(--transition), transform var(--transition);
-}
-
-.edit-profile-button:hover {
-  background-color: var(--secondary-color);
-  transform: translateY(-2px);
-}
-
-/* تحسين معرض الصور بالتصميم الأصلي مع تطوير */
-.design-gallery-section {
-  margin: 20px 0;
-}
-
-.design-gallery-section h2 {
-  text-align: center;
-  font-size: 1.5rem;
-  color: var(--primary-color);
-  margin-bottom: 20px;
-}
-
-.general-container {
-  display: flex; /* التصميم الأصلي */
-  height: 21rem; /* الحجم الأصلي */
-  margin: 0 auto;
-  max-width: 55vw; /* الحجم الأصلي */
-  width: 55vw;
-}
-
-.radio {
-  display: none;
-}
-
-.content {
-  background: transparent;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  border-radius: 3rem;
-  cursor: pointer;
-  flex: 1;
-  margin-right: 0.8rem;
-  overflow: hidden;
-  position: relative;
-  transition: all 0.5s cubic-bezier(0.05, 0.60, 0.39, 0.94); /* الأنيميشن الأصلي */
-}
-
-.content:hover {
-  box-shadow: 0.7rem 0.7rem 0.5rem rgba(0, 0, 0, 0.3); /* التأثير الأصلي */
-}
-
-/* صور المعرض */
-.gallery-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 3rem;
-  display: block; /* إزالة display: none */
-  transition: transform var(--transition);
-}
-
-.title-card {
-  bottom: 1.2rem; /* الموقع الأصلي */
-  color: #fff;
   display: flex;
-  flex-direction: column;
-  font-size: 1.2rem;
-  left: 1.5rem;
-  line-height: 1.1;
-  opacity: 0;
-  position: absolute;
-  transform: translateX(2rem); /* الأنيميشن الأصلي */
-  transition: opacity 0.3s ease, transform 0.3s ease; /* الأنيميشن الأصلي */
-  background: rgba(0, 0, 0, 0.6); /* إضافة جمالية */
-  padding: 10px 15px;
-  border-radius: 8px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* تحسين القراءة */
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
 }
 
-.subtitle {
-  font-size: 1rem;
-  opacity: 0.9;
+.edit-quote-button:hover, .save-quote-button:hover {
+  background: var(--secondary-color);
+  transform: scale(1.1);
 }
 
-.radio:checked + .content {
-  border-radius: 2rem;
-  box-shadow: 0.3rem 0.3rem 0.4rem rgba(0, 0, 0, 0.3);
-  flex: 9; /* التصميم الأصلي */
-}
-
-.radio:checked + .content > .gallery-image {
-  border-radius: 2rem;
-}
-
-.radio:checked + .content > .title-card {
-  opacity: 1;
-  transform: translateX(0); /* الأنيميشن الأصلي */
-}
-
-/* Overlay لتكبير الصورة عند النقر */
+/* Overlay */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease;
-  z-index: 2000;
+  transition: opacity var(--transition);
+  z-index: 1000;
 }
 
 .overlay.active {
@@ -412,18 +523,17 @@ button:disabled {
 
 .overlay-image {
   max-width: 90%;
-  max-height: 90%;
+  max-height: 90vh;
   border-radius: 15px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  transform: scale(0.8);
-  transition: transform 0.3s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9);
+  transition: transform var(--transition);
 }
 
 .overlay.active .overlay-image {
   transform: scale(1);
 }
 
-/* زر إغلاق الـ Overlay */
 .close-overlay {
   position: absolute;
   top: 20px;
@@ -434,159 +544,67 @@ button:disabled {
   padding: 10px 15px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1.2rem;
-  transition: background var(--transition), transform var(--transition);
+  font-size: 1.5rem;
+  transition: var(--transition);
 }
 
 .close-overlay:hover {
-  background: #d65f5d;
+  background: #e74c3c;
   transform: scale(1.1);
 }
 
-.marg-bott {
-  margin-bottom: 1.5rem;
+/* الاستجابة */
+@media (max-width: 1024px) {
+  .profile-header {
+    grid-template-columns: 1fr 2fr;
+  }
+  .action-buttons {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
 }
 
-.add-design-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.add-design-btn {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-
-.add-design-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
-}
-
-#add-design-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 400px;
-  margin: 20px auto;
-}
-
-#add-design-form input[type="file"],
-#add-design-form input[type="text"] {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: #f8f9fb;
-}
-
-.share-btn, .cancel-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: transform var(--transition);
-}
-
-.share-btn {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: #fff;
-}
-
-.share-btn:hover {
-  transform: translateY(-2px);
-}
-
-.cancel-btn {
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: #fff;
-}
-
-.cancel-btn:hover {
-  transform: translateY(-2px);
-}
-
-.delete-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #e74c3c;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: background var(--transition);
-}
-
-.delete-btn:hover {
-  background: #c0392b;
-}
 @media (max-width: 768px) {
+  .profile-header {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .stats {
+    flex-direction: column;
+    gap: 15px;
+  }
   .general-container {
-    flex-direction: column; /* تغيير اتجاه العناصر إلى عمودي */
-    height: auto; /* إزالة الارتفاع الثابت */
-    max-width: 100%; /* جعل العرض يتناسب مع الشاشة */
-    width: 100%;
+    flex-direction: column;
+    height: auto;
+    max-width: 100%;
   }
-
   .content {
-    margin-right: 0; /* إزالة الهامش الأيمن */
-    margin-bottom: 0.8rem; /* إضافة هامش سفلي بين العناصر */
-    flex: 1; /* جعل جميع العناصر بنفس الحجم */
-    height: 150px; /* تحديد ارتفاع ثابت للعناصر */
+    height: 180px;
+    margin-bottom: 1rem;
   }
-
-  .content:hover {
-    box-shadow: none; /* إزالة التأثير عند التمرير */
-  }
-
   .radio:checked + .content {
-    flex: 1; /* إلغاء التوسع عند التحديد */
-    height: 300px; /* زيادة الارتفاع عند التحديد */
-  }
-
-  .title-card {
-    font-size: 1rem; /* تصغير حجم الخط */
-    left: 1rem; /* تعديل الموضع */
-    bottom: 1rem; /* تعديل الموضع */
-    padding: 8px 12px; /* تعديل الحشوة */
-  }
-
-  .subtitle {
-    font-size: 0.9rem; /* تصغير حجم الخط الفرعي */
-  }
-
-  .gallery-image {
-    border-radius: 1.5rem; /* تصغير نصف قطر الزوايا */
-  }
-
-  .radio:checked + .content > .gallery-image {
-    border-radius: 1.5rem; /* تصغير نصف قطر الزوايا عند التحديد */
+    height: 320px;
   }
 }
 
 @media (max-width: 480px) {
+  .username {
+    font-size: 1.8rem;
+  }
+  .action-button {
+    padding: 10px 18px;
+  }
   .content {
-    height: 120px; /* تصغير الارتفاع أكثر */
+    height: 150px;
   }
-
   .radio:checked + .content {
-    height: 250px; /* تصغير الارتفاع عند التحديد */
+    height: 280px;
   }
-
   .title-card {
-    font-size: 0.9rem; /* تصغير حجم الخط أكثر */
-    left: 0.8rem; /* تعديل الموضع */
-    bottom: 0.8rem; /* تعديل الموضع */
-    padding: 6px 10px; /* تعديل الحشوة */
+    padding: 10px 15px;
+    font-size: 1rem;
   }
-
   .subtitle {
-    font-size: 0.8rem; /* تصغير حجم الخط الفرعي أكثر */
+    font-size: 0.85rem;
   }
 }
