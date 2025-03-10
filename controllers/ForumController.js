@@ -1,5 +1,5 @@
-const forumModel = require("../models/ForumModel");
-const JobModel = require("../models/JobModel");
+const ForumModel = require('../models/ForumModel');
+const JobModel = require("../models/jobModel");
 const ProjectModel = require("../models/Project");
 const NotificationModel = require("../models/NotificationModel");
 const jwt = require("jsonwebtoken");
