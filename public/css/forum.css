@@ -907,18 +907,15 @@ body {
   }
 
   .left,
-  .right,
+  .right {
+    display: none; /* إخفاء الأعمدة الجانبية */
+  }
+
   .center {
     width: 100%; /* ملء العرض بالكامل */
     padding: 10px;
     margin: 0;
     box-sizing: border-box; /* تضمين الحواف في العرض */
-  }
-
-  .left,
-  .right {
-    display: block; /* إظهار الأعمدة الجانبية */
-    margin-bottom: 10px;
   }
 
   .text {
