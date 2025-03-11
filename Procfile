@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "build": {
       "command": "npm install"
@@ -17,3 +18,6 @@
     }
   }
   
+=======
+web: node index.js
+>>>>>>> 3e3ca277b12a62acb609c90f9024c0681cac144a
