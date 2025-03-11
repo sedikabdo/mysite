@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const NotificationController = require("../controllers/NotificationController");
-const ChatController = require("../controllers/ChatController"); // لاستخدام markAllAsRead
+const ChatController = require("../controllers/chatController"); // لاستخدام markAllAsRead
 const router = express.Router();
 
 // إعداد multer لتحميل الصور
