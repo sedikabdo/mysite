@@ -1,0 +1,456 @@
+/* المتغيرات الأساسية */
+:root {
+  --primary-color: #5d5af5;
+  --secondary-color: #8e88ff;
+  --accent-color: #ff6b81;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --background-color: #f5f7fa;
+  --card-bg: #ffffff;
+  --text-color: #2c3e50;
+  --muted-text: #7f8c8d;
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.12);
+  --border-color: #e0e4e8;
+  --spacing-unit: 1rem;
+}
+
+/* إعادة ضبط العناصر */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Cairo", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* الحاوية الرئيسية */
+.container {
+  max-width: 1400px;
+  margin: var(--spacing-unit) auto;
+  padding: var(--spacing-unit);
+  direction: rtl;
+}
+
+/* الرسائل */
+.message {
+  padding: 0.75rem 1.5rem;
+  margin-bottom: var(--spacing-unit);
+  border-radius: var(--border-radius);
+  text-align: center;
+  font-weight: 500;
+}
+
+.message-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.message-error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* شبكة الأصدقاء */
+.friends-grid {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(400px, 2fr) minmax(250px, 1fr);
+  gap: var(--spacing-unit);
+  padding: var(--spacing-unit);
+}
+
+/* العناوين */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: var(--spacing-unit);
+  position: relative;
+}
+
+.sub-title {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+}
+
+/* الشريط الجانبي */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-unit);
+}
+
+.sidebar section {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-unit);
+  max-height: 80vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.sidebar section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar section::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+.sidebar section::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* المحتوى الرئيسي */
+.main-content {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-unit);
+  max-height: 80vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+/* شريط البحث */
+.search-bar {
+  position: relative;
+  margin-bottom: var(--spacing-unit);
+}
+
+.search-bar form {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar input[type="text"] {
+  flex: 1;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: var(--transition);
+}
+
+.search-bar input[type="text"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(93, 90, 245, 0.2);
+}
+
+.search-bar button {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.search-bar button:hover {
+  color: var(--secondary-color);
+}
+
+/* قائمة الأصدقاء */
+.friend-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.friend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.friend-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.friend-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.friend-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform var(--transition);
+}
+
+.friend-item:hover .friend-avatar {
+  transform: scale(1.1);
+}
+
+.friend-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* الأزرار والإجراءات */
+.friend-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-add {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+}
+
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(93, 90, 245, 0.3);
+}
+
+.btn-unblock {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+}
+
+.btn-unblock:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-accept {
+  background: var(--success-color);
+  color: #fff;
+}
+
+.btn-accept:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.btn-reject {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.btn-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: #fff;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.action-btn:hover {
+  background: var(--secondary-color);
+  transform: scale(1.1);
+}
+
+.action-btn i {
+  font-size: 1rem;
+}
+
+/* الحالات */
+.status {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+}
+
+.status-pending {
+  color: var(--warning-color);
+  background: rgba(243, 156, 18, 0.1);
+}
+
+.status-friend {
+  color: var(--success-color);
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.status-blocked {
+  color: var(--accent-color);
+  background: rgba(255, 107, 129, 0.1);
+}
+
+.status-online {
+  color: var(--success-color);
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.status-offline {
+  color: var(--muted-text);
+  background: rgba(127, 140, 141, 0.1);
+}
+
+/* تفاصيل الاقتراحات */
+.suggestion-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--muted-text);
+  font-size: 0.85rem;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+/* نص عدم وجود نتائج */
+.no-results {
+  text-align: center;
+  color: var(--muted-text);
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+/* العدد غير المقروء */
+.unread-count {
+  background: var(--accent-color);
+  color: #fff;
+  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  margin-right: 0.5rem;
+}
+
+/* التصميم المتجاوب */
+@media (max-width: 1024px) {
+  .friends-grid {
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas: 
+      "sidebar-right main-content"
+      "sidebar-left main-content";
+  }
+
+  .sidebar-left {
+    grid-area: sidebar-left;
+  }
+
+  .sidebar-right {
+    grid-area: sidebar-right;
+  }
+
+  .main-content {
+    grid-area: main-content;
+  }
+}
+
+@media (max-width: 768px) {
+  .friends-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "main-content"
+      "sidebar-right"
+      "sidebar-left";
+  }
+
+  .sidebar, .main-content {
+    max-height: none;
+  }
+
+  .friend-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .friend-name {
+    font-size: 1rem;
+  }
+
+  .friend-actions {
+    gap: 0.25rem;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .friend-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .friend-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .suggestion-details {
+    margin-right: 0;
+  }
+
+  .friend-avatar {
+    width: 36px;
+    height: 36px;
+  }
+}
