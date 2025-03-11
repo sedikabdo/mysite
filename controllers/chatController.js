@@ -13,21 +13,21 @@ class ChatController {
       const userId = decoded.id;
       const friendId = req.params.friendId;
 
-      const messages = await ChatModel.getMessages(userId, friendId);
       const user = await ChatModel.getUserById(userId);
       const friend = await ChatModel.getUserById(friendId);
 
       if (!user || !friend) return res.status(404).send("المستخدم أو الصديق غير موجود");
 
-      const currentUserAvatar = user.avatar ? (user.avatar.includes('/uploads/avatars/') ? user.avatar : `/uploads/avatars/${user.avatar}`) : '/uploads/images/pngwing.com.png';
-      const friendAvatar = friend.avatar ? (friend.avatar.includes('/uploads/avatars/') ? friend.avatar : `/uploads/avatars/${friend.avatar}`) : '/uploads/images/pngwing.com.png';
-
-      const enrichedMessages = messages.map((message) => ({
-        ...message,
-        sender_avatar: message.sender_id === userId 
-          ? currentUserAvatar 
-          : (message.sender_avatar ? (message.sender_avatar.includes('/uploads/avatars/') ? message.sender_avatar : `/uploads/avatars/${message.sender_avatar}`) : '/uploads/images/pngwing.com.png'),
-      }));
+      const currentUserAvatar = user.avatar
+        ? user.avatar.includes("/uploads/avatars/")
+          ? user.avatar
+          : `/uploads/avatars/${user.avatar}`
+        : "/uploads/images/pngwing.com.png";
+      const friendAvatar = friend.avatar
+        ? friend.avatar.includes("/uploads/avatars/")
+          ? friend.avatar
+          : `/uploads/avatars/${friend.avatar}`
+        : "/uploads/images/pngwing.com.png";
 
       await ChatModel.updateLastActive(userId);
 
@@ -44,19 +44,63 @@ class ChatController {
         friendAvatar,
       });
 
-      res.render("chat", { 
-        messages: enrichedMessages, 
-        friendId, 
+      res.render("chat", {
+        messages: [], // لا نرسل الرسائل هنا، سيتم جلبها ديناميكياً
+        friendId,
         userId,
         currentUserAvatar,
         friendAvatar,
         friendName: friend.name,
         friendLastActive: friend.last_active,
         unreadCount,
-        unreadMessagesCount
+        unreadMessagesCount,
       });
     } catch (error) {
       res.status(500).send("خطأ في تحميل صفحة الدردشة");
+    }
+  }
+
+  static async getMessagesAPI(req, res) {
+    try {
+      const token = req.cookies.token;
+      if (!token) return res.status(401).json({ error: "يرجى تسجيل الدخول أولاً" });
+
+      const decoded = jwt.verify(token, "your_jwt_secret");
+      const userId = decoded.id;
+      const friendId = req.params.friendId;
+
+      const messages = await ChatModel.getMessages(userId, friendId);
+      const user = await ChatModel.getUserById(userId);
+      const friend = await ChatModel.getUserById(friendId);
+
+      if (!user || !friend) return res.status(404).json({ error: "المستخدم أو الصديق غير موجود" });
+
+      const currentUserAvatar = user.avatar
+        ? user.avatar.includes("/uploads/avatars/")
+          ? user.avatar
+          : `/uploads/avatars/${user.avatar}`
+        : "/uploads/images/pngwing.com.png";
+      const friendAvatar = friend.avatar
+        ? friend.avatar.includes("/uploads/avatars/")
+          ? friend.avatar
+          : `/uploads/avatars/${friend.avatar}`
+        : "/uploads/images/pngwing.com.png";
+
+      const enrichedMessages = messages.map((message) => ({
+        ...message,
+        sender_avatar:
+          message.sender_id === userId
+            ? currentUserAvatar
+            : message.sender_avatar
+            ? message.sender_avatar.includes("/uploads/avatars/")
+              ? message.sender_avatar
+              : `/uploads/avatars/${message.sender_avatar}`
+            : "/uploads/images/pngwing.com.png",
+      }));
+
+      res.json({ messages: enrichedMessages });
+    } catch (error) {
+      res.status(500).json({ error: "خطأ في جلب الرسائل" });
     }
   }
 
@@ -81,7 +125,11 @@ class ChatController {
 
       const message = await ChatModel.createMessage(senderId, receiverId, messageContent, imagePath);
       const sender = await ChatModel.getUserById(senderId);
-      const senderAvatar = sender.avatar ? (sender.avatar.includes('/uploads/avatars/') ? sender.avatar : `/uploads/avatars/${sender.avatar}`) : '/uploads/images/pngwing.com.png';
+      const senderAvatar = sender.avatar
+        ? sender.avatar.includes("/uploads/avatars/")
+          ? sender.avatar
+          : `/uploads/avatars/${sender.avatar}`
+        : "/uploads/images/pngwing.com.png";
 
       const io = getIO();
       io.emit("newMessage", {
@@ -93,7 +141,7 @@ class ChatController {
         content: message.content,
         image_path: imagePath,
         created_at: message.created_at,
-        is_read: 0
+        is_read: 0,
       });
 
       res.status(201).json({ message });
@@ -149,21 +197,33 @@ class ChatController {
 
       const messages = await ChatModel.getReceivedMessages(userId);
       const currentUser = await ChatModel.getUserById(userId);
-      const currentUserAvatar = currentUser?.avatar ? (currentUser.avatar.includes('/uploads/avatars/') ? currentUser.avatar : `/uploads/avatars/${currentUser.avatar}`) : '/uploads/images/pngwing.com.png';
-      const friendId = messages.length > 0 
-        ? messages[0].sender_id === userId ? messages[0].receiver_id : messages[0].sender_id 
-        : null;
+      const currentUserAvatar = currentUser?.avatar
+        ? currentUser.avatar.includes("/uploads/avatars/")
+          ? currentUser.avatar
+          : `/uploads/avatars/${currentUser.avatar}`
+        : "/uploads/images/pngwing.com.png";
+      const friendId =
+        messages.length > 0
+          ? messages[0].sender_id === userId
+            ? messages[0].receiver_id
+            : messages[0].sender_id
+          : null;
 
-      const filteredMessages = messages.filter(message => message.sender_id !== userId);
+      const filteredMessages = messages.filter((message) => message.sender_id !== userId);
       const latestMessages = filteredMessages.reduce((acc, message) => {
         acc[message.sender_id] = message;
         return acc;
       }, {});
-      const enrichedMessages = Object.values(latestMessages).map(message => ({
+      const enrichedMessages = Object.values(latestMessages).map((message) => ({
         ...message,
-        sender_avatar: message.sender_id === userId 
-          ? currentUserAvatar 
-          : (message.sender_avatar ? (message.sender_avatar.includes('/uploads/avatars/') ? message.sender_avatar : `/uploads/avatars/${message.sender_avatar}`) : '/uploads/images/pngwing.com.png'),
+        sender_avatar:
+          message.sender_id === userId
+            ? currentUserAvatar
+            : message.sender_avatar
+            ? message.sender_avatar.includes("/uploads/avatars/")
+              ? message.sender_avatar
+              : `/uploads/avatars/${message.sender_avatar}`
+            : "/uploads/images/pngwing.com.png",
       }));
 
       const unreadCount = await NotificationModel.getUnreadCount(userId);
@@ -183,7 +243,7 @@ class ChatController {
         messages: [],
         userId: null,
         friendId: null,
-        currentUserAvatar: '/uploads/images/pngwing.com.png',
+        currentUserAvatar: "/uploads/images/pngwing.com.png",
         unreadCount: 0,
         unreadMessagesCount: 0,
         errorMessage: "حدث خطأ أثناء جلب الرسائل",
@@ -200,16 +260,25 @@ class ChatController {
       const userId = decoded.id;
 
       const currentUser = await ChatModel.getUserById(userId);
-      const currentUserAvatar = currentUser?.avatar ? (currentUser.avatar.includes('/uploads/avatars/') ? currentUser.avatar : `/uploads/avatars/${currentUser.avatar}`) : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = currentUser?.avatar
+        ? currentUser.avatar.includes("/uploads/avatars/")
+          ? currentUser.avatar
+          : `/uploads/avatars/${currentUser.avatar}`
+        : "/uploads/images/pngwing.com.png";
 
       const messages = await ChatModel.getLatestMessagesForFriends(userId);
       const enrichedMessages = messages
-        .filter(message => message.sender_id !== userId)
-        .map(message => ({
+        .filter((message) => message.sender_id !== userId)
+        .map((message) => ({
           ...message,
-          sender_avatar: message.sender_id === userId 
-            ? currentUserAvatar 
-            : (message.sender_avatar ? (message.sender_avatar.includes('/uploads/avatars/') ? message.sender_avatar : `/uploads/avatars/${message.sender_avatar}`) : '/uploads/images/pngwing.com.png'),
+          sender_avatar:
+            message.sender_id === userId
+              ? currentUserAvatar
+              : message.sender_avatar
+              ? message.sender_avatar.includes("/uploads/avatars/")
+                ? message.sender_avatar
+                : `/uploads/avatars/${message.sender_avatar}`
+              : "/uploads/images/pngwing.com.png",
         }));
 
       const unreadCount = await NotificationModel.getUnreadCount(userId);
@@ -227,7 +296,7 @@ class ChatController {
       res.render("messages", {
         messages: [],
         userId: null,
-        currentUserAvatar: '/uploads/images/pngwing.com.png',
+        currentUserAvatar: "/uploads/images/pngwing.com.png",
         unreadCount: 0,
         unreadMessagesCount: 0,
         errorMessage: "حدث خطأ أثناء جلب الرسائل",
@@ -248,27 +317,36 @@ class ChatController {
       const unreadCount = await NotificationModel.getUnreadCount(userId);
       const unreadMessagesCount = await ChatModel.getUnreadCount(userId);
       const currentUser = await ChatModel.getUserById(userId);
-      const currentUserAvatar = currentUser?.avatar ? (currentUser.avatar.includes('/uploads/avatars/') ? currentUser.avatar : `/uploads/avatars/${currentUser.avatar}`) : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = currentUser?.avatar
+        ? currentUser.avatar.includes("/uploads/avatars/")
+          ? currentUser.avatar
+          : `/uploads/avatars/${currentUser.avatar}`
+        : "/uploads/images/pngwing.com.png";
 
-      const filteredMessages = messages.filter(message => message.sender_id !== userId);
+      const filteredMessages = messages.filter((message) => message.sender_id !== userId);
       const latestMessages = filteredMessages.reduce((acc, message) => {
         acc[message.sender_id] = message;
         return acc;
       }, {});
-      const enrichedMessages = Object.values(latestMessages).map(message => ({
+      const enrichedMessages = Object.values(latestMessages).map((message) => ({
         ...message,
-        sender_avatar: message.sender_id === userId 
-          ? currentUserAvatar 
-          : (message.sender_avatar ? (message.sender_avatar.includes('/uploads/avatars/') ? message.sender_avatar : `/uploads/avatars/${message.sender_avatar}`) : '/uploads/images/pngwing.com.png'),
+        sender_avatar:
+          message.sender_id === userId
+            ? currentUserAvatar
+            : message.sender_avatar
+            ? message.sender_avatar.includes("/uploads/avatars/")
+              ? message.sender_avatar
+              : `/uploads/avatars/${message.sender_avatar}`
+            : "/uploads/images/pngwing.com.png",
       }));
 
-      res.render("messages", { 
-        messages: enrichedMessages, 
-        unreadCount, 
+      res.render("messages", {
+        messages: enrichedMessages,
+        unreadCount,
         unreadMessagesCount,
-        userId, 
+        userId,
         currentUserAvatar,
-        errorMessage: null
+        errorMessage: null,
       });
     } catch (error) {
       res.status(500).send("خطأ في عرض الرسائل");
@@ -288,15 +366,24 @@ class ChatController {
       const unreadCount = await NotificationModel.getUnreadCount(userId);
       const unreadMessagesCount = await ChatModel.getUnreadCount(userId);
       const currentUser = await ChatModel.getUserById(userId);
-      const currentUserAvatar = currentUser?.avatar ? (currentUser.avatar.includes('/uploads/avatars/') ? currentUser.avatar : `/uploads/avatars/${currentUser.avatar}`) : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = currentUser?.avatar
+        ? currentUser.avatar.includes("/uploads/avatars/")
+          ? currentUser.avatar
+          : `/uploads/avatars/${currentUser.avatar}`
+        : "/uploads/images/pngwing.com.png";
 
       const enrichedMessages = messages
-        .filter(message => message.sender_id !== userId)
-        .map(message => ({
+        .filter((message) => message.sender_id !== userId)
+        .map((message) => ({
           ...message,
-          sender_avatar: message.sender_id === userId 
-            ? currentUserAvatar 
-            : (message.sender_avatar ? (message.sender_avatar.includes('/uploads/avatars/') ? message.sender_avatar : `/uploads/avatars/${message.sender_avatar}`) : '/uploads/images/pngwing.com.png'),
+          sender_avatar:
+            message.sender_id === userId
+              ? currentUserAvatar
+              : message.sender_avatar
+              ? message.sender_avatar.includes("/uploads/avatars/")
+                ? message.sender_avatar
+                : `/uploads/avatars/${message.sender_avatar}`
+              : "/uploads/images/pngwing.com.png",
         }));
 
       res.render("messages", {
@@ -311,7 +398,7 @@ class ChatController {
       res.render("messages", {
         messages: [],
         userId: null,
-        currentUserAvatar: '/uploads/images/pngwing.com.png',
+        currentUserAvatar: "/uploads/images/pngwing.com.png",
         unreadCount: 0,
         unreadMessagesCount: 0,
         errorMessage: "حدث خطأ أثناء جلب الرسائل",
@@ -322,7 +409,8 @@ class ChatController {
   static async markAllAsRead(req, res) {
     try {
       const token = req.cookies.token;
-      if (!token) return res.status(401).json({ success: false, message: "يرجى تسجيل الدخول أولاً" });
+      if (!token)
+        return res.status(401).json({ success: false, message: "يرجى تسجيل الدخول أولاً" });
 
       const decoded = jwt.verify(token, "your_jwt_secret");
       const userId = decoded.id;
@@ -368,12 +456,16 @@ class ChatController {
 
       await ChatModel.updateUserAvatar(userId, newAvatar);
       const updatedUser = await ChatModel.getUserById(userId);
-      const newAvatarPath = updatedUser.avatar ? (updatedUser.avatar.includes('/uploads/avatars/') ? updatedUser.avatar : `/uploads/avatars/${updatedUser.avatar}`) : '/uploads/images/pngwing.com.png';
+      const newAvatarPath = updatedUser.avatar
+        ? updatedUser.avatar.includes("/uploads/avatars/")
+          ? updatedUser.avatar
+          : `/uploads/avatars/${updatedUser.avatar}`
+        : "/uploads/images/pngwing.com.png";
 
       const io = getIO();
-      io.emit("avatarUpdated", { 
-        userId, 
-        avatar: newAvatarPath 
+      io.emit("avatarUpdated", {
+        userId,
+        avatar: newAvatarPath,
       });
 
       res.json({ success: true, avatar: newAvatarPath });
@@ -397,10 +489,12 @@ class ChatController {
       res.json({ success: true, unreadMessagesCount });
     } catch (error) {
       console.error("Error in getUnreadMessagesCount:", error);
-      res.status(500).json({ success: false, message: "خطأ أثناء جلب عدد الرسائل غير المقروءة" });
+      res.status(500).json({
+        success: false,
+        message: "خطأ أثناء جلب عدد الرسائل غير المقروءة",
+      });
     }
   }
-  
 }
 
 module.exports = ChatController;
