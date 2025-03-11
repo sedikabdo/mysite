@@ -1,5 +1,5 @@
 const NotificationModel = require("../models/NotificationModel");
-const ChatModel = require("../models/ChatModel"); // لجلب عدد الرسائل غير المقروءة
+const ChatModel = require("../models/chatModel");
 const jwt = require("jsonwebtoken");
 
 class NotificationController {
