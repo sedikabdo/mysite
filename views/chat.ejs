@@ -15,36 +15,35 @@
         }
 
         body {
-            background-color: #f9fbfc;
+            background-color: #f0f2f5;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             font-size: 0.875rem;
         }
 
         #chat-container {
             direction: rtl;
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-            align-items: center;
             width: 100%;
             max-width: 700px;
-            height: 90vh;
-            background: #FFFFFF;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            height: 80vh;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
-            margin: 20px auto;
         }
 
         .chat-header {
-            background: linear-gradient(135deg, #6B48FF, #A78BFA);
-            color: #FFFFFF;
-            padding: 15px 20px;
+            background: #075e54;
+            color: #fff;
+            padding: 10px 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            width: 100%;
         }
 
         .chat-header .user-info {
@@ -57,45 +56,29 @@
             height: 40px;
             border-radius: 50%;
             margin-left: 10px;
-            border: 2px solid #FFFFFF;
         }
 
         .chat-header h3 {
-            font-family: 'Tajawal', sans-serif;
-            font-size: 1.2rem;
-            margin-left: 10px;
+            font-size: 1.1rem;
+            margin: 0;
         }
 
         .chat-header .status {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.8;
         }
 
         #messages {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #A78BFA #F5F5F5;
-            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="none"%3E%3Ccircle cx="50" cy="50" r="20" fill="%23A78BFA" opacity="0.05"/%3E%3C/svg%3E');
-            background-repeat: repeat;
-            width: 100%;
-        }
-
-        #messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #messages::-webkit-scrollbar-thumb {
-            background: #A78BFA;
-            border-radius: 10px;
+            background: #ece5dd;
         }
 
         .message {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             display: flex;
             align-items: flex-end;
-            animation: fadeIn 0.3s ease;
         }
 
         .message.sent {
@@ -103,148 +86,81 @@
         }
 
         .message img.avatar {
-            width: 35px;
-            height: 35px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             margin: 0 10px;
         }
 
         .message .content {
-            position: relative;
-            max-width: 65%;
-        }
-
-        .message strong {
-            font-family: 'Tajawal', sans-serif;
-            color: #6B48FF;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            display: block;
+            max-width: 70%;
         }
 
         .message p {
-            padding: 12px 18px;
-            border-radius: 18px;
+            padding: 10px 15px;
+            border-radius: 10px;
             margin: 0;
-            font-size: 1rem;
-            line-height: 1.4;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 0.95rem;
         }
 
         .message.received p {
-            background: #FFFFFF;
+            background: #fff;
             color: #333;
-            border: 1px solid #EDE9FE;
         }
 
         .message.sent p {
-            background: linear-gradient(135deg, #6B48FF, #A78BFA);
-            color: #FFFFFF;
+            background: #dcf8c6;
+            color: #333;
         }
 
         .message img.message-image {
-            width: 200px;
-            height: auto;
+            max-width: 200px;
             border-radius: 10px;
-            margin-top: 10px;
-            transition: transform 0.3s;
-        }
-
-        .message img.message-image:hover {
-            transform: scale(1.05);
+            margin-top: 5px;
         }
 
         .delete-message-btn {
-            background: transparent;
-            color: #FF5C5C;
+            background: none;
             border: none;
+            color: #e74c3c;
             cursor: pointer;
-            font-size: 14px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            margin: 0 5px;
-        }
-
-        .delete-message-btn:hover {
-            opacity: 1;
+            font-size: 0.9rem;
+            margin-right: 5px;
         }
 
         #message-form {
-            padding: 15px;
-            background: #FFFFFF;
-            border-top: 1px solid #E5E7EB;
+            padding: 10px;
+            background: #f0f0f0;
             display: flex;
             align-items: center;
-            gap: 10px;
-            width: 100%;
+            border-top: 1px solid #ddd;
         }
 
         #message-form textarea {
             flex: 1;
-            padding: 12px;
-            border-radius: 25px;
-            border: 1px solid #DDD6FE;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            margin-left: 10px;
             resize: none;
             outline: none;
-            font-family: 'Cairo', sans-serif;
-            background: #F9F9F9;
-            transition: border 0.3s;
-        }
-
-        #message-form textarea:focus {
-            border-color: #6B48FF;
         }
 
         #message-form button {
-            padding: 12px 20px;
+            background: #075e54;
+            color: #fff;
             border: none;
-            border-radius: 25px;
-            background: #6B48FF;
-            color: #FFFFFF;
+            padding: 8px 15px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: background 0.3s;
         }
 
-        #message-form button:hover {
-            background: #A78BFA;
-        }
-
-        .upload-button {
-            padding: 12px;
-            border-radius: 25px;
-            background: #A78BFA;
-            color: #FFFFFF;
+        #message-form .upload-button {
+            background: #075e54;
+            padding: 8px;
+            border-radius: 50%;
+            margin-left: 10px;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .upload-button:hover {
-            background: #6B48FF;
-        }
-
-        .upload-button i {
-            font-size: 18px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 600px) {
-            #chat-container {
-                width: 100%;
-                height: 100vh;
-                border-radius: 0;
-            }
-
-            .chat-header h3 {
-                font-size: 1rem;
-            }
-
-            .message p {
-                font-size: 0.9rem;
-            }
         }
     </style>
 </head>
@@ -315,7 +231,6 @@
                     onerror="this.src='/uploads/images/pngwing.com.png'" 
                 />
                 <div class="content">
-                    <strong>${message.sender_name || 'غير معروف'}</strong>
                     <p>${message.content}</p>
                     ${message.image_path ? `<img class="message-image" src="${message.image_path}" alt="Message Image" onerror="this.style.display='none'" />` : ""}
                 </div>
@@ -336,6 +251,7 @@
                 });
                 const data = await response.json();
                 if (data.messages) {
+                    messagesContainer.innerHTML = ""; // مسح الرسائل القديمة
                     data.messages.forEach(addMessage);
                 }
             } catch (error) {
@@ -345,6 +261,9 @@
 
         // تحميل الرسائل عند فتح الصفحة
         window.addEventListener("load", loadMessages);
+
+        // جلب الرسائل كل 100 ميلي ثانية (كل 0.1 ثانية)
+        setInterval(loadMessages, 100);
 
         // إرسال الرسائل
         form.addEventListener("submit", async (e) => {
