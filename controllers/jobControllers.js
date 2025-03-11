@@ -1,4 +1,4 @@
-const JobModel = require("../models/JobModel");
+const JobModel = require("../models/jobModel");
 const NotificationModel = require("../models/NotificationModel");
 const jwt = require("jsonwebtoken");
 const { getIO } = require("../socket");
