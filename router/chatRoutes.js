@@ -16,16 +16,19 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // عرض صفحة الدردشة مع الصديق
-router.get("/chat/:friendId", ChatController.getChatPage);
+router.get("/:friendId", ChatController.getChatPage);
+
+// جلب الرسائل ديناميكياً عبر API
+router.get("/messages/:friendId", ChatController.getMessagesAPI);
 
 // إرسال رسالة جديدة (موحد مع الكود القديم)
-router.post("/chat/sendMessage", upload.single("imagePath"), ChatController.sendMessage);
+router.post("/sendMessage", upload.single("imagePath"), ChatController.sendMessage);
 
 // حذف كل الرسائل
-router.post("/messages/delete-all", ChatController.deleteAllMessages);
+router.post("/delete-all", ChatController.deleteAllMessages);
 
 // حذف رسالة معينة
-router.post("/messages/delete/:messageId", ChatController.deleteMessage);
+router.post("/delete/:messageId", ChatController.deleteMessage);
 
 // عرض صفحة الرسائل الواردة
 router.get("/messages", ChatController.getMessagesPage);
@@ -34,8 +37,9 @@ router.get("/messages", ChatController.getMessagesPage);
 router.post("/updateAvatar", upload.single("avatar"), ChatController.updateAvatar);
 
 // جلب عدد الرسائل غير المقروءة
-router.get("/chat/unread-count", ChatController.getUnreadMessagesCount);
+router.get("/unread-count", ChatController.getUnreadMessagesCount);
 
 // تحديد جميع الرسائل كمقروءة
-router.post("/chat/mark-all-as-read", ChatController.markAllAsRead);
+router.post("/mark-all-as-read", ChatController.markAllAsRead);
+
 module.exports = router;

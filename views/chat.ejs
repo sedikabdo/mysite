@@ -317,92 +317,119 @@
         </form>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        const form = document.getElementById("message-form");
-        const messagesContainer = document.getElementById("messages");
-        const userId = "<%= userId %>";
-        const friendId = "<%= friendId %>";
+  
+   <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const form = document.getElementById("message-form");
+  const messagesContainer = document.getElementById("messages");
+  const userId = "<%= userId %>";
+  const friendId = "<%= friendId %>";
 
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const messageContent = form.messageContent.value;
-            const receiverId = form.receiverId.value;
-            const imagePath = form.querySelector("input[type='file']").files[0];
+  // دالة لإضافة رسالة إلى الواجهة
+  function addMessage(message) {
+    const isSent = message.sender_id === userId;
+    const messageElement = document.createElement("div");
+    messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
+    messageElement.dataset.senderId = message.sender_id;
+    messageElement.innerHTML = `
+      <img 
+        src="${message.sender_avatar}" 
+        class="avatar" 
+        data-user-id="${message.sender_id}"
+        alt="${message.sender_name || 'User'}" 
+        onerror="this.src='/uploads/images/pngwing.com.png'" 
+      />
+      <div class="content">
+        <strong>${message.sender_name || 'غير معروف'}</strong>
+        <p>${message.content}</p>
+        ${message.image_path ? `<img class="message-image" src="${message.image_path}" alt="Message Image" onerror="this.style.display='none'" />` : ""}
+      </div>
+      <button class="delete-message-btn" data-message-id="${message.id}">
+        <i class="fas fa-trash"></i>
+      </button>
+    `;
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 
-            if (!messageContent.trim() && !imagePath) return;
+  // جلب الرسائل الأولية عند تحميل الصفحة
+  async function loadMessages() {
+    try {
+      const response = await fetch(`/chat/messages/${friendId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (data.messages) {
+        data.messages.forEach(addMessage);
+      }
+    } catch (error) {
+      console.error("خطأ في جلب الرسائل:", error);
+    }
+  }
 
-            const formData = new FormData();
-            formData.append("messageContent", messageContent);
-            formData.append("receiverId", receiverId);
-            if (imagePath) formData.append("imagePath", imagePath);
+  // تحميل الرسائل عند فتح الصفحة
+  window.addEventListener("load", loadMessages);
 
-            try {
-                const response = await fetch("/chat/sendMessage", {
-                    method: "POST",
-                    body: formData,
-                });
-                const data = await response.json();
-                if (data.message) {
-                    form.messageContent.value = "";
-                    form.querySelector("input[type='file']").value = "";
-                }
-            } catch (error) {
-                alert("خطأ في إرسال الرسالة: " + error.message);
-            }
+  // إرسال الرسائل
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const messageContent = form.messageContent.value;
+    const receiverId = form.receiverId.value;
+    const imagePath = form.querySelector("input[type='file']").files[0];
+
+    if (!messageContent.trim() && !imagePath) return;
+
+    const formData = new FormData();
+    formData.append("messageContent", messageContent);
+    formData.append("receiverId", receiverId);
+    if (imagePath) formData.append("imagePath", imagePath);
+
+    try {
+      const response = await fetch("/chat/sendMessage", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.message) {
+        form.messageContent.value = "";
+        form.querySelector("input[type='file']").value = "";
+      }
+    } catch (error) {
+      alert("خطأ في إرسال الرسالة: " + error.message);
+    }
+  });
+
+  // استقبال الرسائل الجديدة عبر Socket.IO
+  socket.on("newMessage", (message) => {
+    addMessage(message);
+  });
+
+  socket.on("avatarUpdated", ({ userId: updatedUserId, avatar }) => {
+    document.querySelectorAll(".avatar").forEach(img => {
+      if (img.dataset.userId === updatedUserId) {
+        img.src = avatar;
+      }
+    });
+  });
+
+  messagesContainer.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("fa-trash")) {
+      const button = e.target.closest(".delete-message-btn");
+      const messageId = button.dataset.messageId;
+      try {
+        await fetch(`/chat/delete/${messageId}`, {
+          method: "POST",
+          credentials: "include",
         });
-
-        socket.on("newMessage", (message) => {
-            const isSent = message.sender_id === userId;
-            const messageElement = document.createElement("div");
-            messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
-            messageElement.dataset.senderId = message.sender_id;
-            messageElement.innerHTML = `
-                <img 
-                    src="${message.sender_avatar}" 
-                    class="avatar" 
-                    data-user-id="${message.sender_id}"
-                    alt="${message.sender_name || 'User'}" 
-                    onerror="this.src='/uploads/images/pngwing.com.png'" 
-                />
-                <div class="content">
-                    <strong>${message.sender_name || 'غير معروف'}</strong>
-                    <p>${message.content}</p>
-                    ${message.image_path ? `<img class="message-image" src="${message.image_path}" alt="Message Image" onerror="this.style.display='none'" />` : ""}
-                </div>
-                <button class="delete-message-btn" data-message-id="${message.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            `;
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        });
-
-        socket.on("avatarUpdated", ({ userId: updatedUserId, avatar }) => {
-            document.querySelectorAll(".avatar").forEach(img => {
-                if (img.dataset.userId === updatedUserId) {
-                    img.src = avatar;
-                }
-            });
-        });
-
-        messagesContainer.addEventListener("click", async (e) => {
-            if (e.target.classList.contains("fa-trash")) {
-                const button = e.target.closest(".delete-message-btn");
-                const messageId = button.dataset.messageId;
-                try {
-                    await fetch(`/chat/delete/${messageId}`, {
-                        method: "POST",
-                        credentials: "include",
-                    });
-                    button.parentElement.remove();
-                } catch (error) {
-                    alert("خطأ في حذف الرسالة: " + error.message);
-                }
-            }
-        });
-    </script>
+        button.parentElement.remove();
+      } catch (error) {
+        alert("خطأ في حذف الرسالة: " + error.message);
+      }
+    }
+  });
+</script>
 </body>
 <%- include('partials/footer') %>
 </html>
