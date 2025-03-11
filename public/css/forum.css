@@ -890,11 +890,10 @@ body {
     display: none;
   }
 }
-/* تنسيق خاص لشاشات الجوال */
 @media screen and (max-width: 768px) {
-  /* تحسين الهوامش والحواف */
+  /* تحسين الهوامش والحواف العامة */
   body {
-    padding: 10px;
+    padding: 0px;
   }
 
   .all {
@@ -905,14 +904,17 @@ body {
 
   .left,
   .right {
-    display: none; /* إخفاء الأعمدة الجانبية على الجوال */
+    width: 100%; /* جعل الأعمدة الجانبية تأخذ العرض الكامل */
+    padding: 15px;
+    margin-bottom: 15px;
+    max-height: none; /* إزالة الحد الأقصى للارتفاع */
   }
 
   .center {
     width: 100%;
     padding: 15px;
     margin: 0;
-    max-height: none;
+    max-height: none; /* إزالة الحد الأقصى للارتفاع */
   }
 
   .text {
@@ -927,7 +929,7 @@ body {
   }
 
   .row {
-    flex-direction: column;
+    flex-direction: row; /* الحفاظ على الترتيب الأفقي */
     align-items: center;
     gap: 10px;
   }
@@ -949,20 +951,20 @@ body {
   }
 
   .hidden-form.active {
-    flex-direction: column;
+    flex-direction: row; /* الحفاظ على الترتيب الأفقي */
     gap: 10px;
     padding: 10px;
   }
 
   .share-buttons {
-    flex-direction: column;
+    flex-direction: row; /* الحفاظ على الترتيب الأفقي */
     gap: 10px;
   }
 
   .share-btn,
   .cancel-btn {
-    width: 100%;
-    padding: 10px;
+    width: auto; /* إعادة العرض التلقائي للأزرار */
+    padding: 10px 20px;
     font-size: 0.9rem;
   }
 
@@ -988,8 +990,8 @@ body {
   }
 
   .post-header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row; /* الحفاظ على الترتيب الأفقي */
+    align-items: center;
     gap: 10px;
   }
 
@@ -1023,19 +1025,19 @@ body {
   }
 
   .post-footer {
-    flex-direction: column;
+    flex-direction: row; /* الحفاظ على الترتيب الأفقي */
     gap: 10px;
     padding-top: 10px;
   }
 
   .post-footer button {
-    width: 100%;
+    width: auto; /* إعادة العرض التلقائي للأزرار */
     justify-content: center;
   }
 
   /* تحسين قسم التعليقات */
   .comment-form .rowcomment {
-    flex-direction: column;
+    flex-direction: row; /* الحفاظ على الترتيب الأفقي */
     gap: 10px;
   }
 
@@ -1046,8 +1048,8 @@ body {
   }
 
   .comment-form button {
-    width: 100%;
-    padding: 8px;
+    width: auto; /* إعادة العرض التلقائي للأزرار */
+    padding: 8px 15px;
     border-radius: 12px;
   }
 
