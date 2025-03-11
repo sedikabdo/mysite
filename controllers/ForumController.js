@@ -1,4 +1,4 @@
-const forumModel = require("../models/forumModel");
+const forumModel = require("../models/ForumModel");
 const JobModel = require("../models/JobModel");
 const ProjectModel = require("../models/Project");
 const NotificationModel = require("../models/NotificationModel");
@@ -265,7 +265,11 @@ class ForumController {
 
   static async getAllPosts(req, res) {
     try {
+      console.log('بدء جلب جميع المنشورات'); // نقطة بداية
+      
       const token = req.cookies.token;
+      console.log('التوكن المستلم من الكوكيز:', token); // طباعة التوكن
+      
       let userId = null;
       let currentUserAvatar = null;
       let currentUserName = null;
@@ -273,26 +277,47 @@ class ForumController {
       if (token) {
         try {
           const decoded = jwt.verify(token, "your_jwt_secret");
+          console.log('تم فك تشفير التوكن بنجاح:', decoded); // طباعة البيانات المفككة
           userId = decoded.id;
+          
           const userInfo = await forumModel.getUserById(userId);
+          console.log('معلومات المستخدم:', userInfo); // طباعة معلومات المستخدم
+          
           currentUserAvatar = userInfo.avatar 
             ? (userInfo.avatar.includes('/uploads/avatars/') ? userInfo.avatar : `/uploads/avatars/${userInfo.avatar}`) 
             : '/uploads/images/pngwing.com.png';
           currentUserName = userInfo.name;
+          console.log('اسم المستخدم الحالي:', currentUserName, 'الصورة الرمزية:', currentUserAvatar);
         } catch (err) {
-          // لا تسجيل خطأ هنا، فقط تجاهل الرمز غير الصالح
+          console.error('خطأ في فك تشفير التوكن أو جلب معلومات المستخدم:', err.message); // تسجيل الخطأ دون إيقاف العملية
         }
+      } else {
+        console.log('لم يتم العثور على توكن، سيتم التعامل مع المستخدم كزائر');
       }
 
+      console.log('جلب المنشورات للمستخدم ID:', userId);
       const posts = await forumModel.getAllPosts(userId);
+      console.log('المنشورات المجلوبة:', posts.length, 'منشور'); // طباعة عدد المنشورات
+      
+      console.log('جلب الإعلانات');
       const ads = await forumModel.getAllAds();
+      console.log('الإعلانات المجلوبة:', ads.length, 'إعلان');
+      
+      console.log('جلب الوظائف');
       const jobs = await JobModel.getAllJobs();
+      console.log('الوظائف المجلوبة:', jobs.length, 'وظيفة');
+      
+      console.log('جلب المشاريع');
       const projects = await ProjectModel.findAll();
+      console.log('المشاريع المجلوبة:', projects.length, 'مشروع');
 
+      console.log('معالجة المنشورات لإضافة بيانات إضافية');
       const enrichedPosts = await Promise.all(posts.map(async post => {
         const isOwner = userId ? await forumModel.isPostOwner(post.id, userId) : false;
         const liked = userId ? await forumModel.hasLikedPost(post.id, userId) : false;
-
+        
+        console.log(`المنشور ${post.id}: هل المستخدم مالك؟ ${isOwner}, هل أعجب به؟ ${liked}`); // تتبع حالة كل منشور
+        
         return {
           ...post,
           user_avatar: post.user_avatar 
@@ -308,14 +333,18 @@ class ForumController {
           liked: liked
         };
       }));
+      console.log('المنشورات المعززة جاهزة:', enrichedPosts.length);
 
+      console.log('معالجة الإعلانات');
       const enrichedAds = ads.map(ad => ({
         ...ad,
         user_avatar: ad.user_avatar 
           ? (ad.user_avatar.includes('/uploads/avatars/') ? ad.user_avatar : `/uploads/avatars/${ad.user_avatar}`) 
           : '/uploads/images/pngwing.com.png'
       }));
+      console.log('الإعلانات المعززة جاهزة:', enrichedAds.length);
 
+      console.log('إرسال البيانات إلى صفحة العرض (forum)');
       res.render("forum", { 
         posts: enrichedPosts, 
         ads: enrichedAds, 
@@ -326,6 +355,7 @@ class ForumController {
         currentUserName 
       });
     } catch (err) {
+      console.error('خطأ كلي في جلب المنشورات:', err.message, err.stack); // تسجيل الخطأ مع التفاصيل الكاملة
       res.status(500).send("حدث خطأ أثناء جلب المنشورات.");
     }
   }
