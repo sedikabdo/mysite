@@ -4,10 +4,10 @@ require('dotenv').config(); // تحميل المتغيرات من .env
 
 // إعداد الاتصال بقاعدة البيانات باستخدام المتغيرات البيئية
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password:  '',
-  database:'sedik',
+  host: 'sql.freedb.tech',
+  user: 'freedb_colorizerdev',
+  password:  '2&b6CD35NVCJJ4y',
+  database:'freedb_colorizer',
   port:  3306
 });
 
