@@ -15,35 +15,36 @@
         }
 
         body {
-            background-color: #f0f2f5;
+            background-color: #f9fbfc;
             color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             font-size: 0.875rem;
         }
 
         #chat-container {
             direction: rtl;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             width: 100%;
             max-width: 700px;
-            height: 80vh;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
+            height: 90vh;
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            margin: 20px auto;
         }
 
         .chat-header {
-            background: #075e54;
-            color: #fff;
-            padding: 10px 15px;
+            background: linear-gradient(135deg, #6B48FF, #A78BFA);
+            color: #FFFFFF;
+            padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
         }
 
         .chat-header .user-info {
@@ -56,29 +57,45 @@
             height: 40px;
             border-radius: 50%;
             margin-left: 10px;
+            border: 2px solid #FFFFFF;
         }
 
         .chat-header h3 {
-            font-size: 1.1rem;
-            margin: 0;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.2rem;
+            margin-left: 10px;
         }
 
         .chat-header .status {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             opacity: 0.8;
         }
 
         #messages {
             flex: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
-            background: #ece5dd;
+            scrollbar-width: thin;
+            scrollbar-color: #A78BFA #F5F5F5;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="none"%3E%3Ccircle cx="50" cy="50" r="20" fill="%23A78BFA" opacity="0.05"/%3E%3C/svg%3E');
+            background-repeat: repeat;
+            width: 100%;
+        }
+
+        #messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #messages::-webkit-scrollbar-thumb {
+            background: #A78BFA;
+            border-radius: 10px;
         }
 
         .message {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             align-items: flex-end;
+            animation: fadeIn 0.3s ease;
         }
 
         .message.sent {
@@ -86,81 +103,148 @@
         }
 
         .message img.avatar {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             margin: 0 10px;
         }
 
         .message .content {
-            max-width: 70%;
+            position: relative;
+            max-width: 65%;
+        }
+
+        .message strong {
+            font-family: 'Tajawal', sans-serif;
+            color: #6B48FF;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            display: block;
         }
 
         .message p {
-            padding: 10px 15px;
-            border-radius: 10px;
+            padding: 12px 18px;
+            border-radius: 18px;
             margin: 0;
-            font-size: 0.95rem;
+            font-size: 1rem;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .message.received p {
-            background: #fff;
+            background: #FFFFFF;
             color: #333;
+            border: 1px solid #EDE9FE;
         }
 
         .message.sent p {
-            background: #dcf8c6;
-            color: #333;
+            background: linear-gradient(135deg, #6B48FF, #A78BFA);
+            color: #FFFFFF;
         }
 
         .message img.message-image {
-            max-width: 200px;
+            width: 200px;
+            height: auto;
             border-radius: 10px;
-            margin-top: 5px;
+            margin-top: 10px;
+            transition: transform 0.3s;
+        }
+
+        .message img.message-image:hover {
+            transform: scale(1.05);
         }
 
         .delete-message-btn {
-            background: none;
+            background: transparent;
+            color: #FF5C5C;
             border: none;
-            color: #e74c3c;
             cursor: pointer;
-            font-size: 0.9rem;
-            margin-right: 5px;
+            font-size: 14px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            margin: 0 5px;
+        }
+
+        .delete-message-btn:hover {
+            opacity: 1;
         }
 
         #message-form {
-            padding: 10px;
-            background: #f0f0f0;
+            padding: 15px;
+            background: #FFFFFF;
+            border-top: 1px solid #E5E7EB;
             display: flex;
             align-items: center;
-            border-top: 1px solid #ddd;
+            gap: 10px;
+            width: 100%;
         }
 
         #message-form textarea {
             flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 20px;
-            margin-left: 10px;
+            padding: 12px;
+            border-radius: 25px;
+            border: 1px solid #DDD6FE;
             resize: none;
             outline: none;
+            font-family: 'Cairo', sans-serif;
+            background: #F9F9F9;
+            transition: border 0.3s;
+        }
+
+        #message-form textarea:focus {
+            border-color: #6B48FF;
         }
 
         #message-form button {
-            background: #075e54;
-            color: #fff;
+            padding: 12px 20px;
             border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
+            border-radius: 25px;
+            background: #6B48FF;
+            color: #FFFFFF;
             cursor: pointer;
+            transition: background 0.3s;
         }
 
-        #message-form .upload-button {
-            background: #075e54;
-            padding: 8px;
-            border-radius: 50%;
-            margin-left: 10px;
+        #message-form button:hover {
+            background: #A78BFA;
+        }
+
+        .upload-button {
+            padding: 12px;
+            border-radius: 25px;
+            background: #A78BFA;
+            color: #FFFFFF;
             cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .upload-button:hover {
+            background: #6B48FF;
+        }
+
+        .upload-button i {
+            font-size: 18px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            #chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .chat-header h3 {
+                font-size: 1rem;
+            }
+
+            .message p {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -194,7 +278,32 @@
         </div>
 
         <div id="messages">
-            <!-- الرسائل ستُضاف ديناميكياً عبر JavaScript -->
+            <% messages.forEach((message) => { %>
+                <div class="message <%= message.sender_id === userId ? 'sent' : 'received' %>" data-sender-id="<%= message.sender_id %>">
+                    <img 
+                        src="<%= message.sender_avatar %>" 
+                        class="avatar" 
+                        data-user-id="<%= message.sender_id %>"
+                        alt="<%= message.sender_name || 'User' %>"
+                        onerror="this.src='/uploads/images/pngwing.com.png'" 
+                    />
+                    <div class="content">
+                        <strong><%= message.sender_name || 'غير معروف' %></strong>
+                        <p><%= message.content %></p>
+                        <% if (message.image_path) { %>
+                            <img 
+                                class="message-image" 
+                                src="<%= message.image_path %>" 
+                                alt="Message Image" 
+                                onerror="this.style.display='none'" 
+                            />
+                        <% } %>
+                    </div>
+                    <button class="delete-message-btn" data-message-id="<%= message.id %>">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            <% }) %>
         </div>
 
         <form id="message-form" enctype="multipart/form-data" style="display: flex; flex-direction: row-reverse;">
@@ -216,56 +325,6 @@
         const userId = "<%= userId %>";
         const friendId = "<%= friendId %>";
 
-        // دالة لإضافة رسالة إلى الواجهة
-        function addMessage(message) {
-            const isSent = message.sender_id === userId;
-            const messageElement = document.createElement("div");
-            messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
-            messageElement.dataset.senderId = message.sender_id;
-            messageElement.innerHTML = `
-                <img 
-                    src="${message.sender_avatar}" 
-                    class="avatar" 
-                    data-user-id="${message.sender_id}"
-                    alt="${message.sender_name || 'User'}" 
-                    onerror="this.src='/uploads/images/pngwing.com.png'" 
-                />
-                <div class="content">
-                    <p>${message.content}</p>
-                    ${message.image_path ? `<img class="message-image" src="${message.image_path}" alt="Message Image" onerror="this.style.display='none'" />` : ""}
-                </div>
-                <button class="delete-message-btn" data-message-id="${message.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            `;
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // جلب الرسائل الأولية عند تحميل الصفحة
-        async function loadMessages() {
-            try {
-                const response = await fetch(`/chat/messages/${friendId}`, {
-                    method: "GET",
-                    credentials: "include",
-                });
-                const data = await response.json();
-                if (data.messages) {
-                    messagesContainer.innerHTML = ""; // مسح الرسائل القديمة
-                    data.messages.forEach(addMessage);
-                }
-            } catch (error) {
-                console.error("خطأ في جلب الرسائل:", error);
-            }
-        }
-
-        // تحميل الرسائل عند فتح الصفحة
-        window.addEventListener("load", loadMessages);
-
-        // جلب الرسائل كل 100 ميلي ثانية (كل 0.1 ثانية)
-        setInterval(loadMessages, 100);
-
-        // إرسال الرسائل
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             const messageContent = form.messageContent.value;
@@ -294,21 +353,40 @@
             }
         });
 
-        // استقبال الرسائل الجديدة عبر Socket.IO
         socket.on("newMessage", (message) => {
-            addMessage(message);
+            const isSent = message.sender_id === userId;
+            const messageElement = document.createElement("div");
+            messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
+            messageElement.dataset.senderId = message.sender_id;
+            messageElement.innerHTML = `
+                <img 
+                    src="${message.sender_avatar}" 
+                    class="avatar" 
+                    data-user-id="${message.sender_id}"
+                    alt="${message.sender_name || 'User'}" 
+                    onerror="this.src='/uploads/images/pngwing.com.png'" 
+                />
+                <div class="content">
+                    <strong>${message.sender_name || 'غير معروف'}</strong>
+                    <p>${message.content}</p>
+                    ${message.image_path ? `<img class="message-image" src="${message.image_path}" alt="Message Image" onerror="this.style.display='none'" />` : ""}
+                </div>
+                <button class="delete-message-btn" data-message-id="${message.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
 
-        // تحديث الصورة الرمزية
         socket.on("avatarUpdated", ({ userId: updatedUserId, avatar }) => {
-            document.querySelectorAll(".avatar").forEach((img) => {
+            document.querySelectorAll(".avatar").forEach(img => {
                 if (img.dataset.userId === updatedUserId) {
                     img.src = avatar;
                 }
             });
         });
 
-        // حذف الرسائل
         messagesContainer.addEventListener("click", async (e) => {
             if (e.target.classList.contains("fa-trash")) {
                 const button = e.target.closest(".delete-message-btn");
