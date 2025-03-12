@@ -1,4 +1,5 @@
 const db = require("../config/db");
+
 class ForumModel {
   static async addPost(userId, content, images) {
     // التحقق من الحد اليومي يتم في NotificationModel.canUserPost
