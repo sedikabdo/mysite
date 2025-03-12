@@ -10,7 +10,6 @@ const db = mysql.createConnection({
   database: 'sql8767341',             // اسم قاعدة البيانات
   port: 3306                          // المنفذ الافتراضي لـ MySQL
 });
-
 db.connect((err) => {
   if (err) {
     console.error("❌ لم يتم الاتصال بقاعدة البيانات:", err);
