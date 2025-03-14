@@ -26,6 +26,7 @@ class ProfileControllers {
         }
       });
     } catch (error) {
+      console.error("Error in addDesign:", error);
       res.status(500).json({ success: false, message: "حدث خطأ في الخادم." });
     }
   }
@@ -46,6 +47,7 @@ class ProfileControllers {
         res.status(404).json({ success: false, message: "العمل غير موجود أو لا تملك صلاحية حذفه." });
       }
     } catch (error) {
+      console.error("Error in deleteDesign:", error);
       res.status(500).json({ success: false, message: "حدث خطأ في الخادم." });
     }
   }
@@ -63,14 +65,19 @@ class ProfileControllers {
       if (!user) return res.status(404).send("المستخدم غير موجود");
 
       const currentUser = await ProfileModels.GetProfileModels(userId);
-      const currentUserAvatar = currentUser && currentUser.avatar ? `/uploads/avatars/${currentUser.avatar}` : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = currentUser && currentUser.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", currentUser.avatar))
+        ? `/uploads/avatars/${currentUser.avatar}`
+        : '/uploads/images/pngwing.com.png';
 
       const friendStatus = await ProfileModels.checkFriendStatus(userId, friendId);
       const unreadCount = await NotificationModel.getUnreadCount(userId);
       const hasLiked = await ProfileModels.hasUserLiked(userId, friendId);
       const gallery = await ProfileModels.getGallery(friendId);
 
-      user.avatar = user.avatar ? (user.avatar.includes('/uploads/avatars/') ? user.avatar : `/uploads/avatars/${user.avatar}`) : '/uploads/images/pngwing.com.png';
+      // التحقق من وجود ملف الأفاتار
+      user.avatar = user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
+        ? `/uploads/avatars/${user.avatar}`
+        : '/uploads/images/pngwing.com.png';
       user.liked = hasLiked;
 
       res.render("profile", { 
@@ -82,6 +89,7 @@ class ProfileControllers {
         gallery
       });
     } catch (error) {
+      console.error("Error in GetProfileControllers:", error);
       res.status(500).send("حدث خطأ أثناء عرض الملف الشخصي.");
     }
   }
@@ -97,7 +105,9 @@ class ProfileControllers {
       const user = await ProfileModels.GetProfileModels(userId);
       if (!user) return res.status(404).send("User not found");
 
-      const currentUserAvatar = user && user.avatar ? `/uploads/avatars/${user.avatar}` : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = user && user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
+        ? `/uploads/avatars/${user.avatar}`
+        : '/uploads/images/pngwing.com.png';
       const unreadCount = await NotificationModel.getUnreadCount(userId);
 
       res.render("updateProfile", { 
@@ -106,6 +116,7 @@ class ProfileControllers {
         unreadCount 
       });
     } catch (error) {
+      console.error("Error in GetUpdateProfileControllers:", error);
       res.status(500).send("حدث خطأ أثناء عرض صفحة تعديل الملف الشخصي.");
     }
   }
@@ -140,7 +151,7 @@ class ProfileControllers {
         language,
         occupation,
         phone,
-        avatar,
+        avatar: avatar || null, // إذا لم يكن هناك أفاتار، اجعله NULL
       };
 
       const result = await ProfileModels.UpdateProfileModels(userId, updatedData);
@@ -148,6 +159,7 @@ class ProfileControllers {
       if (result && result.affectedRows > 0) res.redirect("/profile");
       else res.status(400).send("فشل في تحديث الملف الشخصي");
     } catch (error) {
+      console.error("Error in UpdateProfileControllers:", error);
       res.status(500).send("حدث خطأ أثناء تحديث الملف الشخصي.");
     }
   }
@@ -174,6 +186,7 @@ class ProfileControllers {
         res.status(400).send(result.message || "حدث خطأ أثناء تحديث الإعجاب.");
       }
     } catch (error) {
+      console.error("Error in toggleLike:", error);
       res.status(500).send("حدث خطأ في الخادم.");
     }
   }
@@ -201,6 +214,7 @@ class ProfileControllers {
 
       res.status(400).json({ success: false, message: "الإجراء غير صالح" });
     } catch (error) {
+      console.error("Error in handleFriendAction:", error);
       res.status(500).send("حدث خطأ في الخادم.");
     }
   }
@@ -219,6 +233,7 @@ class ProfileControllers {
       if (result) res.json({ success: true });
       else res.json({ success: false });
     } catch (error) {
+      console.error("Error in updateQuote:", error);
       res.status(500).json({ success: false });
     }
   }
@@ -232,10 +247,14 @@ class ProfileControllers {
       const userId = decoded.id;
 
       const user = await ProfileModels.GetProfileModels(userId);
-      const currentUserAvatar = user && user.avatar ? `/uploads/avatars/${user.avatar}` : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = user && user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
+        ? `/uploads/avatars/${user.avatar}`
+        : '/uploads/images/pngwing.com.png';
       const unreadCount = await NotificationModel.getUnreadCount(userId);
 
-      user.avatar = user.avatar ? (user.avatar.includes('/uploads/avatars/') ? user.avatar : `/uploads/avatars/${user.avatar}`) : '/uploads/images/pngwing.com.png';
+      user.avatar = user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
+        ? `/uploads/avatars/${user.avatar}`
+        : '/uploads/images/pngwing.com.png';
 
       res.render("profile", { 
         user, 
@@ -244,6 +263,7 @@ class ProfileControllers {
         unreadCount 
       });
     } catch (error) {
+      console.error("Error in showProfile:", error);
       res.status(500).send("Internal Server Error");
     }
   }
