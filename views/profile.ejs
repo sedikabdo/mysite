@@ -18,14 +18,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" media="screen" />
 
     <!-- تحسين الأداء: تحميل مسبق للصورة الرئيسية -->
-    <link rel="preload" href="<%= user.avatar.includes('/uploads/avatars/') ? user.avatar : '/uploads/avatars/' + (user.avatar || 'default-avatar.png') %>" as="image" />
+    <link rel="preload" href="<%= user.avatar %>" as="image" />
 
     <!-- Open Graph لتحسين المشاركة على الشبكات الاجتماعية -->
     <meta property="og:title" content="الملف الشخصي لـ <%= user.name %> | Colorizer" />
     <meta property="og:description" content="استعرض المعلومات الشخصية ومعرض أعمال <%= user.name %> على Colorizer." />
     <meta property="og:type" content="profile" />
     <meta property="og:url" content="https://www.colorizer.com/profile/<%= user.id %>" />
-    <meta property="og:image" content="<%= user.avatar.includes('/uploads/avatars/') ? user.avatar : '/uploads/avatars/' + (user.avatar || 'default-avatar.png') %>" />
+    <meta property="og:image" content="<%= user.avatar %>" />
     <meta property="og:image:alt" content="صورة الملف الشخصي لـ <%= user.name %>" />
     <meta property="og:site_name" content="Colorizer" />
     <meta property="og:locale" content="ar_AR" />
@@ -34,12 +34,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="الملف الشخصي لـ <%= user.name %> | Colorizer" />
     <meta name="twitter:description" content="استعرض المعلومات الشخصية ومعرض أعمال <%= user.name %> على Colorizer." />
-    <meta name="twitter:image" content="<%= user.avatar.includes('/uploads/avatars/') ? user.avatar : '/uploads/avatars/' + (user.avatar || 'default-avatar.png') %>" />
+    <meta name="twitter:image" content="<%= user.avatar %>" />
 
     <!-- تحسين الأداء: إضافة DNS Prefetch و Preconnect -->
     <link rel="dns-prefetch" href="//www.colorizer.com" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-
 </head>
 <body>
     <%- include('partials/headerhome') %> 
@@ -49,9 +48,7 @@
         <!-- الصف الأول: معلومات المستخدم -->
         <div class="profile-header">
             <div class="avatar-section">
-                <img src="<%= user.avatar.includes('/uploads/avatars/') ? user.avatar : '/uploads/avatars/' + (user.avatar || 'default-avatar.png') %>"
-                     alt="Profile Picture" 
-                     class="profile-picture">
+                <img src="<%= user.avatar %>" alt="Profile Picture" class="profile-picture">
             </div>
             <div class="user-info">
                 <h1 id="username"><%= user.name %></h1>
