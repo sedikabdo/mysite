@@ -3,6 +3,7 @@ const JobModel = require("../models/jobModel");
 const ProjectModel = require("../models/Project");
 const NotificationModel = require("../models/NotificationModel");
 const jwt = require("jsonwebtoken");
+const { getAvatarPath } = require("../utils/avatarHelper");
 
 class ForumController {
   static async addPost(req, res) {
@@ -11,7 +12,6 @@ class ForumController {
         return res.status(403).json({ success: false, message: "معرف المستخدم مطلوب. الرجاء تسجيل الدخول." });
       }
       const userId = req.user.id;
-
       const content = req.body.content;
       const images = req.files ? req.files.map((file) => file.filename) : [];
 
@@ -23,6 +23,7 @@ class ForumController {
       await forumModel.addPost(userId, content, images);
       res.json({ success: true, message: "تم إضافة المنشور بنجاح!" });
     } catch (err) {
+      console.error("Error in addPost:", err);
       res.status(500).json({ success: false, message: "حدث خطأ أثناء إضافة المنشور." });
     }
   }
@@ -54,13 +55,12 @@ class ForumController {
           id: comment.insertId,
           content,
           user_name: userInfo.name,
-          user_avatar: userInfo.avatar 
-            ? (userInfo.avatar.includes('/uploads/avatars/') ? userInfo.avatar : `/uploads/avatars/${userInfo.avatar}`) 
-            : '/uploads/images/pngwing.com.png',
+          user_avatar: getAvatarPath(userInfo.avatar),
           user_id: userId,
         },
       });
     } catch (error) {
+      console.error("Error in addComment:", error);
       res.status(500).json({ success: false, message: "خطأ في إضافة التعليق." });
     }
   }
@@ -84,13 +84,14 @@ class ForumController {
       }
 
       const adId = await forumModel.addAd(userId, title, description, image);
-      res.json({ 
-        success: true, 
-        message: "تم إضافة الإعلان بنجاح!", 
+      res.json({
+        success: true,
+        message: "تم إضافة الإعلان بنجاح!",
         adId,
-        filename: image
+        filename: image,
       });
     } catch (err) {
+      console.error("Error in addAd:", err);
       res.status(500).json({ success: false, message: "حدث خطأ أثناء إضافة الإعلان." });
     }
   }
@@ -101,7 +102,6 @@ class ForumController {
         return res.status(403).send("معرف المستخدم مطلوب. الرجاء تسجيل الدخول.");
       }
       const userId = req.user.id;
-
       const postId = req.params.postId;
       const post = await forumModel.getPostDetails(postId);
 
@@ -114,12 +114,10 @@ class ForumController {
         return res.status(403).send("أنت لست صاحب هذا المنشور.");
       }
 
-      post.user_avatar = post.user_avatar 
-        ? (post.user_avatar.includes('/uploads/avatars/') ? post.user_avatar : `/uploads/avatars/${post.user_avatar}`) 
-        : '/uploads/images/pngwing.com.png';
-
+      post.user_avatar = getAvatarPath(post.user_avatar);
       res.render("editPost", { post });
     } catch (err) {
+      console.error("Error in editPostForm:", err);
       res.status(500).send("حدث خطأ أثناء جلب تفاصيل المنشور.");
     }
   }
@@ -130,7 +128,6 @@ class ForumController {
         return res.status(403).send("معرف المستخدم مطلوب. الرجاء تسجيل الدخول.");
       }
       const userId = req.user.id;
-
       const postId = req.params.postId;
       const { content } = req.body;
       const images = req.files ? req.files.map((file) => file.filename) : [];
@@ -141,8 +138,9 @@ class ForumController {
       }
 
       await forumModel.editPost(postId, content, images);
-      res.redirect(`/forum`);
+      res.redirect("/forum");
     } catch (err) {
+      console.error("Error in updatePost:", err);
       res.status(500).send("حدث خطأ أثناء تحديث المنشور.");
     }
   }
@@ -153,7 +151,6 @@ class ForumController {
         return res.status(403).send("معرف المستخدم مطلوب. الرجاء تسجيل الدخول.");
       }
       const userId = req.user.id;
-
       const postId = req.params.id;
 
       const isOwner = await forumModel.isPostOwner(postId, userId);
@@ -164,6 +161,7 @@ class ForumController {
       await forumModel.deletePost(postId);
       res.redirect("/forum");
     } catch (err) {
+      console.error("Error in deletePost:", err);
       res.status(500).send("حدث خطأ أثناء حذف المنشور.");
     }
   }
@@ -175,25 +173,19 @@ class ForumController {
       }
       const userId = req.user.id;
       const postId = req.params.id;
-  
+
       const canLike = await NotificationModel.canUserLike(userId);
       if (!canLike.canLike) {
         return res.status(403).json({ success: false, message: canLike.message });
       }
-  
+
       const liked = await forumModel.toggleLike(postId, userId);
       const likeCount = await forumModel.getLikeCount(postId);
-  
-      res.json({
-        success: true,
-        liked,
-        likeCount,
-      });
+
+      res.json({ success: true, liked, likeCount });
     } catch (err) {
-      res.status(500).json({
-        success: false,
-        message: "حدث خطأ أثناء تبديل الإعجاب.",
-      });
+      console.error("Error in toggleLike:", err);
+      res.status(500).json({ success: false, message: "حدث خطأ أثناء تبديل الإعجاب." });
     }
   }
 
@@ -204,13 +196,12 @@ class ForumController {
 
       const enrichedComments = comments.map(comment => ({
         ...comment,
-        user_avatar: comment.user_avatar 
-          ? (comment.user_avatar.includes('/uploads/avatars/') ? comment.user_avatar : `/uploads/avatars/${comment.user_avatar}`) 
-          : '/uploads/images/pngwing.com.png'
+        user_avatar: getAvatarPath(comment.user_avatar),
       }));
 
       res.json({ success: true, comments: enrichedComments });
     } catch (error) {
+      console.error("Error in getComments:", error);
       res.status(500).json({ success: false, message: "خطأ في جلب التعليقات." });
     }
   }
@@ -226,6 +217,7 @@ class ForumController {
       const liked = await forumModel.toggleLikeComment(commentId, userId);
       res.json({ liked });
     } catch (err) {
+      console.error("Error in toggleLikeComment:", err);
       res.status(500).send("حدث خطأ أثناء تبديل الإعجاب على التعليق.");
     }
   }
@@ -241,6 +233,7 @@ class ForumController {
       await forumModel.sharePost(userId, postId);
       res.redirect("/forum");
     } catch (err) {
+      console.error("Error in sharePost:", err);
       res.status(500).send("حدث خطأ أثناء مشاركة المنشور.");
     }
   }
@@ -259,92 +252,73 @@ class ForumController {
       }
       res.redirect("/forum");
     } catch (err) {
+      console.error("Error in hidePost:", err);
       res.status(500).send("حدث خطأ أثناء إخفاء المنشور.");
     }
   }
-static async getAllPosts(req, res) {
+
+  static async getAllPosts(req, res) {
     try {
-        const token = req.cookies.token;
-        let userId = null;
-        let currentUserAvatar = null;
-        let currentUserName = null;
+      const token = req.cookies.token;
+      let userId = null;
+      let currentUserAvatar = null;
+      let currentUserName = null;
 
-        if (token) {
-            try {
-                const decoded = jwt.verify(token, "your_jwt_secret");
-                userId = decoded.id;
-                console.log("Decoded User ID:", userId);
-
-                const userInfo = await forumModel.getUserById(userId);
-                console.log("User Info:", userInfo);
-
-                currentUserAvatar = userInfo.avatar 
-                    ? (userInfo.avatar.includes('/uploads/avatars/') ? userInfo.avatar : `/uploads/avatars/${userInfo.avatar}`) 
-                    : '/uploads/images/pngwing.com.png';
-                currentUserName = userInfo.name;
-            } catch (err) {
-                console.error("JWT Decoding Error:", err);
-            }
+      if (token) {
+        try {
+          const decoded = jwt.verify(token, "your_jwt_secret");
+          userId = decoded.id;
+          const userInfo = await forumModel.getUserById(userId);
+          currentUserAvatar = getAvatarPath(userInfo.avatar);
+          currentUserName = userInfo.name;
+        } catch (err) {
+          console.error("JWT Decoding Error:", err);
         }
+      }
 
-        // **طباعة عند جلب المنشورات**
-        const posts = await forumModel.getAllPosts(userId);
-        console.log("Fetched Posts:", posts);
+      const posts = await forumModel.getAllPosts(userId);
+      const ads = await forumModel.getAllAds();
+      const jobs = await JobModel.getAllJobs();
+      const projects = await ProjectModel.findAll();
 
-        // **طباعة عند جلب الإعلانات، الوظائف، والمشاريع**
-        const ads = await forumModel.getAllAds();
-        console.log("Fetched Ads:", ads);
+      const enrichedPosts = await Promise.all(
+        posts.map(async post => {
+          const isOwner = userId ? await forumModel.isPostOwner(post.id, userId) : false;
+          const liked = userId ? await forumModel.hasLikedPost(post.id, userId) : false;
+          return {
+            ...post,
+            user_avatar: getAvatarPath(post.user_avatar),
+            comments: post.comments
+              ? post.comments.map(comment => ({
+                  ...comment,
+                  user_avatar: getAvatarPath(comment.user_avatar),
+                }))
+              : [],
+            showEditDeleteButtons: isOwner,
+            liked,
+          };
+        })
+      );
 
-        const jobs = await JobModel.getAllJobs();
-        console.log("Fetched Jobs:", jobs);
+      const enrichedAds = ads.map(ad => ({
+        ...ad,
+        user_avatar: getAvatarPath(ad.user_avatar),
+      }));
 
-        const projects = await ProjectModel.findAll();
-        console.log("Fetched Projects:", projects);
-
-        const enrichedPosts = await Promise.all(posts.map(async post => {
-            const isOwner = userId ? await forumModel.isPostOwner(post.id, userId) : false;
-            const liked = userId ? await forumModel.hasLikedPost(post.id, userId) : false;
-
-            return {
-                ...post,
-                user_avatar: post.user_avatar 
-                    ? (post.user_avatar.includes('/uploads/avatars/') ? post.user_avatar : `/uploads/avatars/${post.user_avatar}`) 
-                    : '/uploads/images/pngwing.com.png',
-                comments: post.comments ? post.comments.map(comment => ({
-                    ...comment,
-                    user_avatar: comment.user_avatar 
-                        ? (comment.user_avatar.includes('/uploads/avatars/') ? comment.user_avatar : `/uploads/avatars/${comment.user_avatar}`) 
-                        : '/uploads/images/pngwing.com.png'
-                })) : [],
-                showEditDeleteButtons: isOwner,
-                liked: liked
-            };
-        }));
-
-        console.log("Enriched Posts:", enrichedPosts);
-
-        const enrichedAds = ads.map(ad => ({
-            ...ad,
-            user_avatar: ad.user_avatar 
-                ? (ad.user_avatar.includes('/uploads/avatars/') ? ad.user_avatar : `/uploads/avatars/${ad.user_avatar}`) 
-                : '/uploads/images/pngwing.com.png'
-        }));
-
-        res.render("forum", { 
-            posts: enrichedPosts, 
-            ads: enrichedAds, 
-            jobs, 
-            projects, 
-            currentUserId: userId, 
-            currentUserAvatar, 
-            currentUserName 
-        });
+      res.render("forum", {
+        posts: enrichedPosts,
+        ads: enrichedAds,
+        jobs,
+        projects,
+        currentUserId: userId,
+        currentUserAvatar,
+        currentUserName,
+      });
     } catch (err) {
-        console.error("Error in getAllPosts:", err);
-        res.status(500).send("حدث خطأ أثناء جلب المنشورات.");
+      console.error("Error in getAllPosts:", err);
+      res.status(500).send("حدث خطأ أثناء جلب المنشورات.");
     }
-}
-
+  }
 
   static async getPostDetails(req, res) {
     try {
@@ -356,7 +330,7 @@ static async getAllPosts(req, res) {
           const decoded = jwt.verify(token, "your_jwt_secret");
           userId = decoded.id;
         } catch (err) {
-          // لا تسجيل خطأ هنا، فقط تجاهل الرمز غير الصالح
+          console.error("JWT Decoding Error:", err);
         }
       }
 
@@ -367,18 +341,17 @@ static async getAllPosts(req, res) {
         return res.status(404).send("المنشور غير موجود.");
       }
 
-      post.user_avatar = post.user_avatar 
-        ? (post.user_avatar.includes('/uploads/avatars/') ? post.user_avatar : `/uploads/avatars/${post.user_avatar}`) 
-        : '/uploads/images/pngwing.com.png';
-      post.comments = post.comments ? post.comments.map(comment => ({
-        ...comment,
-        user_avatar: comment.user_avatar 
-          ? (comment.user_avatar.includes('/uploads/avatars/') ? comment.user_avatar : `/uploads/avatars/${comment.user_avatar}`) 
-          : '/uploads/images/pngwing.com.png'
-      })) : [];
+      post.user_avatar = getAvatarPath(post.user_avatar);
+      post.comments = post.comments
+        ? post.comments.map(comment => ({
+            ...comment,
+            user_avatar: getAvatarPath(comment.user_avatar),
+          }))
+        : [];
 
       res.render("postDetails", { post, currentUserId: userId });
     } catch (err) {
+      console.error("Error in getPostDetails:", err);
       res.status(500).send("حدث خطأ أثناء جلب تفاصيل المنشور.");
     }
   }
@@ -398,6 +371,7 @@ static async getAllPosts(req, res) {
         res.status(400).send("صورة الأفاتار مطلوبة.");
       }
     } catch (err) {
+      console.error("Error in uploadAvatar:", err);
       res.status(500).send("حدث خطأ أثناء رفع الأفاتار.");
     }
   }
@@ -414,12 +388,10 @@ static async getAllPosts(req, res) {
         return res.status(404).send("المستخدم غير موجود");
       }
 
-      user.avatar = user.avatar 
-        ? (user.avatar.includes('/uploads/avatars/') ? user.avatar : `/uploads/avatars/${user.avatar}`) 
-        : '/uploads/images/pngwing.com.png';
-
+      user.avatar = getAvatarPath(user.avatar);
       res.render("profile", { user });
     } catch (err) {
+      console.error("Error in renderProfile:", err);
       res.status(500).send("حدث خطأ أثناء عرض الملف الشخصي.");
     }
   }
@@ -432,34 +404,31 @@ static async getAllPosts(req, res) {
       const userId = req.user.id;
 
       const posts = await forumModel.getUserPosts(userId);
-
-      const enrichedPosts = await Promise.all(posts.map(async post => {
-        const isOwner = await forumModel.isPostOwner(post.id, userId);
-        const liked = await forumModel.hasLikedPost(post.id, userId);
-
-        return {
-          ...post,
-          user_avatar: post.user_avatar 
-            ? (post.user_avatar.includes('/uploads/avatars/') ? post.user_avatar : `/uploads/avatars/${post.user_avatar}`) 
-            : '/uploads/images/pngwing.com.png',
-          showEditDeleteButtons: isOwner,
-          liked: liked
-        };
-      }));
+      const enrichedPosts = await Promise.all(
+        posts.map(async post => {
+          const isOwner = await forumModel.isPostOwner(post.id, userId);
+          const liked = await forumModel.hasLikedPost(post.id, userId);
+          return {
+            ...post,
+            user_avatar: getAvatarPath(post.user_avatar),
+            showEditDeleteButtons: isOwner,
+            liked,
+          };
+        })
+      );
 
       const userInfo = await forumModel.getUserById(userId);
-      const currentUserAvatar = userInfo.avatar 
-        ? (userInfo.avatar.includes('/uploads/avatars/') ? userInfo.avatar : `/uploads/avatars/${userInfo.avatar}`) 
-        : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = getAvatarPath(userInfo.avatar);
       const currentUserName = userInfo.name;
 
-      res.render("userPosts", { 
-        posts: enrichedPosts, 
-        currentUserId: userId, 
-        currentUserAvatar, 
-        currentUserName 
+      res.render("userPosts", {
+        posts: enrichedPosts,
+        currentUserId: userId,
+        currentUserAvatar,
+        currentUserName,
       });
     } catch (err) {
+      console.error("Error in getUserPosts:", err);
       res.status(500).send("حدث خطأ أثناء جلب منشورات المستخدم.");
     }
   }
