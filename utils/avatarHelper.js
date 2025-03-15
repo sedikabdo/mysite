@@ -1,17 +1,22 @@
 // utils/avatarHelper.js
-const fs = require('fs');
 const path = require('path');
 
 function getAvatarPath(avatarFilename) {
-  const avatarDir = path.join(__dirname, '..', 'uploads', 'avatars'); // المسار النسبي لـ uploads/avatars
   const defaultAvatar = '/uploads/images/pngwing.com.png'; // الصورة الافتراضية
 
-  if (!avatarFilename) {
+  // إذا لم يكن هناك اسم ملف أو كان فارغًا، نرجع الافتراضي
+  if (!avatarFilename || typeof avatarFilename !== 'string') {
     return defaultAvatar;
   }
 
-  const avatarPath = path.join(avatarDir, avatarFilename);
-  return fs.existsSync(avatarPath) ? `/uploads/avatars/${avatarFilename}` : defaultAvatar;
+  // نضمن أن المسار يكون موحدًا ونظيفًا
+  const normalizedAvatar = avatarFilename.trim();
+  if (normalizedAvatar.startsWith('/uploads/avatars/')) {
+    return normalizedAvatar; // المسار جاهز بالفعل
+  }
+
+  // إنشاء المسار النسبي للأفاتار
+  return `/uploads/avatars/${normalizedAvatar}`;
 }
 
 module.exports = { getAvatarPath };
