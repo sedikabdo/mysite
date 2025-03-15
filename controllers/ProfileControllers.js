@@ -3,6 +3,7 @@ const NotificationModel = require("../models/NotificationModel");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
+const { getAvatarPath } = require("../utils/avatarHelper");
 
 class ProfileControllers {
   static async addDesign(req, res) {
@@ -11,9 +12,9 @@ class ProfileControllers {
       const userId = req.user.id;
       const { title, subtitle } = req.body;
       const image = req.file ? req.file.filename : null;
-  
+
       if (!image || !title) return res.status(400).json({ success: false, message: "الصورة والعنوان مطلوبان." });
-  
+
       const designId = await ProfileModels.addDesign(userId, image, title, subtitle);
       res.json({
         success: true,
@@ -36,7 +37,7 @@ class ProfileControllers {
       if (!req.user || !req.user.id) return res.status(403).json({ success: false, message: "مطلوب تسجيل الدخول." });
       const userId = req.user.id;
       const designId = req.params.designId;
-  
+
       const deleted = await ProfileModels.deleteDesign(designId, userId);
       if (deleted) {
         res.json({
@@ -65,19 +66,14 @@ class ProfileControllers {
       if (!user) return res.status(404).send("المستخدم غير موجود");
 
       const currentUser = await ProfileModels.GetProfileModels(userId);
-      const currentUserAvatar = currentUser && currentUser.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", currentUser.avatar))
-        ? `/uploads/avatars/${currentUser.avatar}`
-        : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = getAvatarPath(currentUser?.avatar);
 
       const friendStatus = await ProfileModels.checkFriendStatus(userId, friendId);
       const unreadCount = await NotificationModel.getUnreadCount(userId);
       const hasLiked = await ProfileModels.hasUserLiked(userId, friendId);
       const gallery = await ProfileModels.getGallery(friendId);
 
-      // التحقق من وجود ملف الأفاتار
-      user.avatar = user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
-        ? `/uploads/avatars/${user.avatar}`
-        : '/uploads/images/pngwing.com.png';
+      user.avatar = getAvatarPath(user.avatar);
       user.liked = hasLiked;
 
       res.render("profile", { 
@@ -103,11 +99,9 @@ class ProfileControllers {
       const userId = decoded.id;
 
       const user = await ProfileModels.GetProfileModels(userId);
-      if (!user) return res.status(404).send("User not found");
+      if (!user) return res.status(404).send("المستخدم غير موجود");
 
-      const currentUserAvatar = user && user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
-        ? `/uploads/avatars/${user.avatar}`
-        : '/uploads/images/pngwing.com.png';
+      const currentUserAvatar = getAvatarPath(user?.avatar);
       const unreadCount = await NotificationModel.getUnreadCount(userId);
 
       res.render("updateProfile", { 
@@ -132,7 +126,7 @@ class ProfileControllers {
       const { name, age, gender, country, language, occupation, phone } = req.body;
 
       const currentUser = await ProfileModels.GetProfileModels(userId);
-      if (!currentUser) return res.status(404).send("User not found");
+      if (!currentUser) return res.status(404).send("المستخدم غير موجود");
 
       let avatar = currentUser.avatar;
       if (req.file) {
@@ -151,7 +145,7 @@ class ProfileControllers {
         language,
         occupation,
         phone,
-        avatar: avatar || null, // إذا لم يكن هناك أفاتار، اجعله NULL
+        avatar,
       };
 
       const result = await ProfileModels.UpdateProfileModels(userId, updatedData);
@@ -167,7 +161,7 @@ class ProfileControllers {
   static async toggleLike(req, res) {
     try {
       const token = req.cookies.token;
-      if (!token) return res.status(401).send("Unauthorized");
+      if (!token) return res.status(401).send("غير مصرح");
 
       const decoded = jwt.verify(token, "your_jwt_secret");
       const userId = decoded.id;
@@ -194,7 +188,7 @@ class ProfileControllers {
   static async handleFriendAction(req, res) {
     try {
       const token = req.cookies.token;
-      if (!token) return res.status(401).send("Unauthorized");
+      if (!token) return res.status(401).send("غير مصرح");
 
       const decoded = jwt.verify(token, "your_jwt_secret");
       const userId = decoded.id;
@@ -222,7 +216,7 @@ class ProfileControllers {
   static async updateQuote(req, res) {
     try {
       const token = req.cookies.token;
-      if (!token) return res.status(401).send("Unauthorized");
+      if (!token) return res.status(401).send("غير مصرح");
 
       const decoded = jwt.verify(token, "your_jwt_secret");
       const userId = decoded.id;
@@ -241,20 +235,18 @@ class ProfileControllers {
   static async showProfile(req, res) {
     try {
       const token = req.cookies.token;
-      if (!token) return res.status(401).send("Unauthorized");
+      if (!token) return res.status(401).send("غير مصرح");
 
       const decoded = jwt.verify(token, "your_jwt_secret");
       const userId = decoded.id;
 
       const user = await ProfileModels.GetProfileModels(userId);
-      const currentUserAvatar = user && user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
-        ? `/uploads/avatars/${user.avatar}`
-        : '/uploads/images/pngwing.com.png';
+      if (!user) return res.status(404).send("المستخدم غير موجود");
+
+      const currentUserAvatar = getAvatarPath(user?.avatar);
       const unreadCount = await NotificationModel.getUnreadCount(userId);
 
-      user.avatar = user.avatar && fs.existsSync(path.join(__dirname, "..", "uploads", "avatars", user.avatar))
-        ? `/uploads/avatars/${user.avatar}`
-        : '/uploads/images/pngwing.com.png';
+      user.avatar = getAvatarPath(user.avatar);
 
       res.render("profile", { 
         user, 
@@ -264,7 +256,7 @@ class ProfileControllers {
       });
     } catch (error) {
       console.error("Error in showProfile:", error);
-      res.status(500).send("Internal Server Error");
+      res.status(500).send("خطأ في الخادم الداخلي");
     }
   }
 }

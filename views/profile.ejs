@@ -15,7 +15,6 @@
 
     <!-- تحسين الأداء: تصحيح مسار CSS وضغطه -->
     <link rel="stylesheet" href="/css/profile.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" media="screen" />
 
     <!-- تحسين الأداء: تحميل مسبق للصورة الرئيسية -->
     <link rel="preload" href="<%= user.avatar %>" as="image" />
@@ -48,7 +47,9 @@
         <!-- الصف الأول: معلومات المستخدم -->
         <div class="profile-header">
             <div class="avatar-section">
-                <img src="<%= user.avatar %>" alt="Profile Picture" class="profile-picture">
+                <img src="<%= user.avatar %>"
+                     alt="صورة الملف الشخصي" 
+                     class="profile-picture">
             </div>
             <div class="user-info">
                 <h1 id="username"><%= user.name %></h1>
@@ -75,11 +76,11 @@
                         <input type="hidden" name="friendId" value="<%= user.id %>" />
                         <% if (friendStatus === "no_friend") { %>
                             <button type="button" id="sendRequestButton" class="action-button">
-                                <i class="fas fa-user-plus"></i> اضافة صديق
+                                <i class="fas fa-user-plus"></i> إضافة صديق
                             </button>
                         <% } else if (friendStatus === "pending") { %>
                             <button type="button" id="cancelRequestButton" class="action-button">
-                                <i class="fas fa-user-times"></i> الغاء الطلب
+                                <i class="fas fa-user-times"></i> إلغاء الطلب
                             </button>
                         <% } else if (friendStatus === "accepted") { %>
                             <button type="button" class="action-button">
@@ -120,20 +121,20 @@
                         <span class="info-value" id="skills"><%= user.occupation %></span>
                     </div>
                     <div class="info-item">
-                      <span class="info-label">البريد :</span>
-                      <span class="info-value" id="email"><%= user.email %></span>
+                        <span class="info-label">البريد :</span>
+                        <span class="info-value" id="email"><%= user.email %></span>
                     </div>
                     <div class="info-item">
-                      <span class="info-label">الهاتف :</span>
-                      <span class="info-value" id="phone"><%= user.phone %></span>
+                        <span class="info-label">الهاتف :</span>
+                        <span class="info-value" id="phone"><%= user.phone %></span>
                     </div>
                     <div class="info-item">
-                      <span class="info-label">الملف الشخصي :</span>
-                      <a href="<%= user.portfolio %>" class="info-value">زيارة</a>
+                        <span class="info-label">الملف الشخصي :</span>
+                        <a href="<%= user.portfolio %>" class="info-value">زيارة</a>
                     </div>
                     <div class="info-item">
-                      <span class="info-label">تاريخ الانضمام :</span>
-                      <span class="info-value"><%= new Date(user.join_date).toISOString().split('T')[0] %></span>
+                        <span class="info-label">تاريخ الانضمام :</span>
+                        <span class="info-value"><%= new Date(user.join_date).toISOString().split('T')[0] %></span>
                     </div>
                 </div>
             </div>

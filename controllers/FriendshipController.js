@@ -3,13 +3,14 @@ const ProfileModels = require("../models/ProfileModels");
 const NotificationModel = require("../models/NotificationModel");
 const jwt = require("jsonwebtoken");
 const { getIO } = require("../socket");
+const { getAvatarPath } = require("../utils/avatarHelper");
 
 class FriendshipController {
   static async showFriendsPage(req, res) {
     try {
       const token = req.cookies.token;
       if (!token) return res.redirect("/login");
-  
+
       let decoded;
       try {
         decoded = jwt.verify(token, "your_jwt_secret");
@@ -19,62 +20,45 @@ class FriendshipController {
       }
       const userId = decoded.id;
       const io = getIO();
-  
+
       const friends = await FriendshipModel.getAcceptedFriends(userId, 0, 10);
       const friendRequests = await FriendshipModel.getFriendRequests(userId);
       const blockedFriends = await FriendshipModel.getBlockedFriends(userId);
       const allUsers = await FriendshipModel.getAllUsersExceptCurrent(userId, 0, 10);
       const unreadCount = await NotificationModel.getUnreadCount(userId);
-  
+
       const enrichedFriends = friends.map(friend => {
         const socket = io.sockets.sockets.get(friend.id);
         const isOnline = socket ? socket.connected : false;
-  
         return {
           ...friend,
-          avatar: friend.avatar
-            ? friend.avatar.includes("/uploads/avatars/")
-              ? friend.avatar
-              : `/uploads/avatars/${friend.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(friend.avatar),
           online: isOnline,
           isActive: friend.is_active,
         };
       });
-  
+
       const enrichedFriendRequests = friendRequests.map(request => ({
         ...request,
-        sender_avatar: request.sender_avatar
-          ? request.sender_avatar.includes("/uploads/avatars/")
-            ? request.sender_avatar
-            : `/uploads/avatars/${request.sender_avatar}`
-          : "/uploads/images/pngwing.com.png",
+        sender_avatar: getAvatarPath(request.sender_avatar),
       }));
-  
+
       const enrichedBlockedFriends = blockedFriends.map(blocked => ({
         ...blocked,
-        avatar: blocked.avatar
-          ? blocked.avatar.includes("/uploads/avatars/")
-            ? blocked.avatar
-            : `/uploads/avatars/${blocked.avatar}`
-          : "/uploads/images/pngwing.com.png",
+        avatar: getAvatarPath(blocked.avatar),
       }));
-  
+
       const enrichedUsers = allUsers.map(user => ({
         ...user,
-        avatar: user.avatar
-          ? user.avatar.includes("/uploads/avatars/")
-            ? user.avatar
-            : `/uploads/avatars/${user.avatar}`
-          : "/uploads/images/pngwing.com.png",
+        avatar: getAvatarPath(user.avatar),
         isActive: user.is_active,
         country: user.country || "غير محدد",
         age: user.age || "غير محدد",
         language: user.language || "غير محدد",
       }));
-  
+
       await FriendshipModel.updateLastActive(userId);
-  
+
       res.render("friends", {
         friends: enrichedFriends,
         friendRequests: enrichedFriendRequests,
@@ -101,6 +85,7 @@ class FriendshipController {
       });
     }
   }
+
   static async searchFriends(req, res) {
     try {
       const token = req.cookies.token;
@@ -127,40 +112,24 @@ class FriendshipController {
 
       const enrichedFriends = friends.map(friend => ({
         ...friend,
-        avatar: friend.avatar
-          ? friend.avatar.includes("/uploads/avatars/")
-            ? friend.avatar
-            : `/uploads/avatars/${friend.avatar}`
-          : "/uploads/images/pngwing.com.png",
+        avatar: getAvatarPath(friend.avatar),
         online: io.sockets.sockets.get(friend.id)?.connected || false,
         isActive: friend.is_active,
       }));
 
       const enrichedFriendRequests = friendRequests.map(request => ({
         ...request,
-        sender_avatar: request.sender_avatar
-          ? request.sender_avatar.includes("/uploads/avatars/")
-            ? request.sender_avatar
-            : `/uploads/avatars/${request.sender_avatar}`
-          : "/uploads/images/pngwing.com.png",
+        sender_avatar: getAvatarPath(request.sender_avatar),
       }));
 
       const enrichedBlockedFriends = blockedFriends.map(blocked => ({
         ...blocked,
-        avatar: blocked.avatar
-          ? blocked.avatar.includes("/uploads/avatars/")
-            ? blocked.avatar
-            : `/uploads/avatars/${blocked.avatar}`
-          : "/uploads/images/pngwing.com.png",
+        avatar: getAvatarPath(blocked.avatar),
       }));
 
       const enrichedSearchResults = searchResults.map(result => ({
         ...result,
-        avatar: result.avatar
-          ? result.avatar.includes("/uploads/avatars/")
-            ? result.avatar
-            : `/uploads/avatars/${result.avatar}`
-          : "/uploads/images/pngwing.com.png",
+        avatar: getAvatarPath(result.avatar),
         isActive: result.is_active,
         country: result.country || "غير محدد",
         age: result.age || "غير محدد",
@@ -195,11 +164,12 @@ class FriendshipController {
       });
     }
   }
+
   static async sendFriendRequest(req, res) {
     try {
       const token = req.cookies.token;
       if (!token) return res.status(401).send("يرجى تسجيل الدخول أولاً");
-  
+
       let decoded;
       try {
         decoded = jwt.verify(token, "your_jwt_secret");
@@ -209,50 +179,48 @@ class FriendshipController {
       }
       const userId = decoded.id;
       const friendId = req.body.friendId;
-  
+
       if (!friendId) throw new Error("لم يتم تحديد المستخدم المطلوب");
       if (userId === friendId) throw new Error("لا يمكنك إرسال طلب صداقة لنفسك");
-  
+
       const friendCount = await FriendshipModel.getFriendsCount(userId);
       if (friendCount >= 20) throw new Error("لا يمكنك إضافة المزيد من الأصدقاء. لقد وصلت للحد الأقصى (20)");
-  
+
       const friendProfile = await FriendshipModel.getUserProfile(friendId);
       if (!friendProfile) throw new Error("المستخدم المطلوب غير موجود");
       if (!friendProfile.is_active) throw new Error("لا يمكنك إرسال طلب صداقة لمستخدم غير نشط");
-  
+
       const isBlockedByMe = await FriendshipModel.isUserBlocked(userId, friendId);
       if (isBlockedByMe) throw new Error("لا يمكنك إرسال طلب صداقة لمستخدم قمت بحظره. قم بإلغاء الحظر أولاً");
-  
+
       const isBlockedByFriend = await FriendshipModel.isUserBlocked(friendId, userId);
       if (isBlockedByFriend) throw new Error("لا يمكنك إرسال طلب صداقة لأن هذا المستخدم قام بحظرك");
-  
-      // التحقق من حالة الصداقة بشكل صريح باستخدام checkFriendship
+
       const friendshipStatus = await FriendshipModel.checkFriendship(userId, friendId);
       if (friendshipStatus === "accepted") throw new Error("هذا المستخدم صديقك بالفعل");
-  
-      // التحقق من حالة طلب الصداقة
+
       const requestStatus = await FriendshipModel.checkFriendRequestStatus(userId, friendId);
       if (requestStatus === "pending") {
         const isSender = await FriendshipModel.isSender(userId, friendId);
         if (isSender) throw new Error("لقد أرسلت طلب صداقة لهذا المستخدم بالفعل");
         else throw new Error("هذا المستخدم أرسل لك طلب صداقة بالفعل. يمكنك قبوله بدلاً من ذلك");
       }
-  
+
       const lastRequestTime = await FriendshipModel.getLastRequestTime(userId, friendId);
       const cooldownPeriod = 24 * 60 * 60 * 1000; // 24 ساعة
       if (lastRequestTime && Date.now() - new Date(lastRequestTime).getTime() < cooldownPeriod) {
         const timeLeft = Math.ceil((cooldownPeriod - (Date.now() - new Date(lastRequestTime).getTime())) / (60 * 60 * 1000));
         throw new Error(`لا يمكنك إعادة إرسال طلب صداقة الآن. انتظر ${timeLeft} ساعة`);
       }
-  
+
       await FriendshipModel.sendFriendRequest(userId, friendId);
-  
+
       const io = getIO();
       io.to(friendId).emit("friendRequestReceived", {
         senderId: userId,
         senderName: friendProfile.name || "مستخدم",
       });
-  
+
       const senderName = (await FriendshipModel.getUserProfile(userId)).name || "مستخدم";
       await NotificationModel.createNotification(
         friendId,
@@ -260,7 +228,7 @@ class FriendshipController {
         "friend_request",
         `${senderName} أرسل لك طلب صداقة`
       );
-  
+
       res.redirect("/friends");
     } catch (error) {
       console.error("Error in sendFriendRequest:", error);
@@ -272,7 +240,7 @@ class FriendshipController {
         userId = null;
       }
       const io = getIO();
-  
+
       let friends = [],
         friendRequests = [],
         blockedFriends = [],
@@ -285,42 +253,26 @@ class FriendshipController {
         allUsers = await FriendshipModel.getAllUsersExceptCurrent(userId, 0, 10);
         unreadCount = await NotificationModel.getUnreadCount(userId);
       }
-  
+
       res.status(400).render("friends", {
         friends: friends.map(f => ({
           ...f,
-          avatar: f.avatar
-            ? f.avatar.includes("/uploads/avatars/")
-              ? f.avatar
-              : `/uploads/avatars/${f.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(f.avatar),
           online: io.sockets.sockets.get(f.id)?.connected || false,
           isActive: f.is_active,
         })),
         friendRequests: friendRequests.map(r => ({
           ...r,
-          sender_avatar: r.sender_avatar
-            ? r.sender_avatar.includes("/uploads/avatars/")
-              ? r.sender_avatar
-              : `/uploads/avatars/${r.sender_avatar}`
-            : "/uploads/images/pngwing.com.png",
+          sender_avatar: getAvatarPath(r.sender_avatar),
         })),
         blockedFriends: blockedFriends.map(b => ({
           ...b,
-          avatar: b.avatar
-            ? b.avatar.includes("/uploads/avatars/")
-              ? b.avatar
-              : `/uploads/avatars/${b.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(b.avatar),
         })),
         searchResults: null,
         users: allUsers.map(u => ({
           ...u,
-          avatar: u.avatar
-            ? u.avatar.includes("/uploads/avatars/")
-              ? u.avatar
-              : `/uploads/avatars/${u.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(u.avatar),
           isActive: u.is_active,
           country: u.country || "غير محدد",
           age: u.age || "غير محدد",
@@ -333,6 +285,7 @@ class FriendshipController {
       });
     }
   }
+
   static async cancelFriendRequest(req, res) {
     try {
       const token = req.cookies.token;
@@ -407,38 +360,22 @@ class FriendshipController {
       res.status(400).render("friends", {
         friends: friends.map(f => ({
           ...f,
-          avatar: f.avatar
-            ? f.avatar.includes("/uploads/avatars/")
-              ? f.avatar
-              : `/uploads/avatars/${f.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(f.avatar),
           online: io.sockets.sockets.get(f.id)?.connected || false,
           isActive: f.is_active,
         })),
         friendRequests: friendRequests.map(r => ({
           ...r,
-          sender_avatar: r.sender_avatar
-            ? r.sender_avatar.includes("/uploads/avatars/")
-              ? r.sender_avatar
-              : `/uploads/avatars/${r.sender_avatar}`
-            : "/uploads/images/pngwing.com.png",
+          sender_avatar: getAvatarPath(r.sender_avatar),
         })),
         blockedFriends: blockedFriends.map(b => ({
           ...b,
-          avatar: b.avatar
-            ? b.avatar.includes("/uploads/avatars/")
-              ? b.avatar
-              : `/uploads/avatars/${b.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(b.avatar),
         })),
         searchResults: null,
         users: allUsers.map(u => ({
           ...u,
-          avatar: u.avatar
-            ? u.avatar.includes("/uploads/avatars/")
-              ? u.avatar
-              : `/uploads/avatars/${u.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(u.avatar),
           isActive: u.is_active,
           country: u.country || "غير محدد",
           age: u.age || "غير محدد",
@@ -524,38 +461,22 @@ class FriendshipController {
       res.status(400).render("friends", {
         friends: friends.map(f => ({
           ...f,
-          avatar: f.avatar
-            ? f.avatar.includes("/uploads/avatars/")
-              ? f.avatar
-              : `/uploads/avatars/${f.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(f.avatar),
           online: io.sockets.sockets.get(f.id)?.connected || false,
           isActive: f.is_active,
         })),
         friendRequests: friendRequests.map(r => ({
           ...r,
-          sender_avatar: r.sender_avatar
-            ? r.sender_avatar.includes("/uploads/avatars/")
-              ? r.sender_avatar
-              : `/uploads/avatars/${r.sender_avatar}`
-            : "/uploads/images/pngwing.com.png",
+          sender_avatar: getAvatarPath(r.sender_avatar),
         })),
         blockedFriends: blockedFriends.map(b => ({
           ...b,
-          avatar: b.avatar
-            ? b.avatar.includes("/uploads/avatars/")
-              ? b.avatar
-              : `/uploads/avatars/${b.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(b.avatar),
         })),
         searchResults: null,
         users: allUsers.map(u => ({
           ...u,
-          avatar: u.avatar
-            ? u.avatar.includes("/uploads/avatars/")
-              ? u.avatar
-              : `/uploads/avatars/${u.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(u.avatar),
           isActive: u.is_active,
           country: u.country || "غير محدد",
           age: u.age || "غير محدد",
@@ -568,11 +489,12 @@ class FriendshipController {
       });
     }
   }
+
   static async acceptFriendRequest(req, res) {
     try {
       const token = req.cookies.token;
       if (!token) return res.status(401).send("يرجى تسجيل الدخول أولاً");
-  
+
       let decoded;
       try {
         decoded = jwt.verify(token, "your_jwt_secret");
@@ -582,37 +504,32 @@ class FriendshipController {
       }
       const userId = decoded.id;
       const requestId = req.params.id;
-  
-      // جلب تفاصيل طلب الصداقة
+
       const request = await FriendshipModel.getFriendRequestById(requestId);
       if (!request || request.receiver_id !== userId) throw new Error("طلب الصداقة غير موجود أو ليس لك");
-  
+
       const senderId = request.sender_id;
-  
-      // التحقق من حالة الصداقة الحالية
+
       const friendshipStatus = await FriendshipModel.checkFriendship(userId, senderId);
       if (friendshipStatus === "accepted") throw new Error("هذا المستخدم صديقك بالفعل");
-  
-      // التحقق من أن المرسل موجود ونشط
+
       const senderProfile = await FriendshipModel.getUserProfile(senderId);
       if (!senderProfile) throw new Error("المرسل غير موجود");
       if (!senderProfile.is_active) throw new Error("لا يمكنك قبول طلب صداقة من مستخدم غير نشط");
-  
-      // التحقق من عدد الأصدقاء لكل من المرسل والمستقبل
+
       const senderFriendsCount = await FriendshipModel.getFriendsCount(senderId);
       const receiverFriendsCount = await FriendshipModel.getFriendsCount(userId);
       if (senderFriendsCount >= 20) throw new Error("المرسل وصل للحد الأقصى لعدد الأصدقاء (20)");
       if (receiverFriendsCount >= 20) throw new Error("لقد وصلت للحد الأقصى لعدد الأصدقاء (20)");
-  
-      // قبول طلب الصداقة
+
       const { senderId: acceptedSenderId, receiverId } = await FriendshipModel.acceptFriendRequest(requestId, userId);
-  
+
       const io = getIO();
       io.to(acceptedSenderId).emit("friendRequestAccepted", { receiverId });
-  
+
       const senderName = senderProfile.name || "مستخدم";
       const receiverName = (await FriendshipModel.getUserProfile(receiverId)).name || "مستخدم";
-  
+
       await NotificationModel.createNotification(
         acceptedSenderId,
         receiverId,
@@ -625,7 +542,7 @@ class FriendshipController {
         "accepted",
         `أصبحت صديقًا مع ${senderName}`
       );
-  
+
       res.redirect("/friends");
     } catch (error) {
       console.error("Error in acceptFriendRequest:", error);
@@ -637,7 +554,7 @@ class FriendshipController {
         userId = null;
       }
       const io = getIO();
-  
+
       let friends = [],
         friendRequests = [],
         blockedFriends = [],
@@ -650,42 +567,26 @@ class FriendshipController {
         allUsers = await FriendshipModel.getAllUsersExceptCurrent(userId, 0, 10);
         unreadCount = await NotificationModel.getUnreadCount(userId);
       }
-  
+
       res.status(400).render("friends", {
         friends: friends.map(f => ({
           ...f,
-          avatar: f.avatar
-            ? f.avatar.includes("/uploads/avatars/")
-              ? f.avatar
-              : `/uploads/avatars/${f.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(f.avatar),
           online: io.sockets.sockets.get(f.id)?.connected || false,
           isActive: f.is_active,
         })),
         friendRequests: friendRequests.map(r => ({
           ...r,
-          sender_avatar: r.sender_avatar
-            ? r.sender_avatar.includes("/uploads/avatars/")
-              ? r.sender_avatar
-              : `/uploads/avatars/${r.sender_avatar}`
-            : "/uploads/images/pngwing.com.png",
+          sender_avatar: getAvatarPath(r.sender_avatar),
         })),
         blockedFriends: blockedFriends.map(b => ({
           ...b,
-          avatar: b.avatar
-            ? b.avatar.includes("/uploads/avatars/")
-              ? b.avatar
-              : `/uploads/avatars/${b.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(b.avatar),
         })),
         searchResults: null,
         users: allUsers.map(u => ({
           ...u,
-          avatar: u.avatar
-            ? u.avatar.includes("/uploads/avatars/")
-              ? u.avatar
-              : `/uploads/avatars/${u.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(u.avatar),
           isActive: u.is_active,
           country: u.country || "غير محدد",
           age: u.age || "غير محدد",
@@ -698,6 +599,7 @@ class FriendshipController {
       });
     }
   }
+
   static async rejectFriendRequest(req, res) {
     try {
       const token = req.cookies.token;
@@ -768,38 +670,22 @@ class FriendshipController {
       res.status(400).render("friends", {
         friends: friends.map(f => ({
           ...f,
-          avatar: f.avatar
-            ? f.avatar.includes("/uploads/avatars/")
-              ? f.avatar
-              : `/uploads/avatars/${f.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(f.avatar),
           online: io.sockets.sockets.get(f.id)?.connected || false,
           isActive: f.is_active,
         })),
         friendRequests: friendRequests.map(r => ({
           ...r,
-          sender_avatar: r.sender_avatar
-            ? r.sender_avatar.includes("/uploads/avatars/")
-              ? r.sender_avatar
-              : `/uploads/avatars/${r.sender_avatar}`
-            : "/uploads/images/pngwing.com.png",
+          sender_avatar: getAvatarPath(r.sender_avatar),
         })),
         blockedFriends: blockedFriends.map(b => ({
           ...b,
-          avatar: b.avatar
-            ? b.avatar.includes("/uploads/avatars/")
-              ? b.avatar
-              : `/uploads/avatars/${b.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(b.avatar),
         })),
         searchResults: null,
         users: allUsers.map(u => ({
           ...u,
-          avatar: u.avatar
-            ? u.avatar.includes("/uploads/avatars/")
-              ? u.avatar
-              : `/uploads/avatars/${u.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(u.avatar),
           isActive: u.is_active,
           country: u.country || "غير محدد",
           age: u.age || "غير محدد",
@@ -888,38 +774,22 @@ class FriendshipController {
       res.status(400).render("friends", {
         friends: friends.map(f => ({
           ...f,
-          avatar: f.avatar
-            ? f.avatar.includes("/uploads/avatars/")
-              ? f.avatar
-              : `/uploads/avatars/${f.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(f.avatar),
           online: io.sockets.sockets.get(f.id)?.connected || false,
           isActive: f.is_active,
         })),
         friendRequests: friendRequests.map(r => ({
           ...r,
-          sender_avatar: r.sender_avatar
-            ? r.sender_avatar.includes("/uploads/avatars/")
-              ? r.sender_avatar
-              : `/uploads/avatars/${r.sender_avatar}`
-            : "/uploads/images/pngwing.com.png",
+          sender_avatar: getAvatarPath(r.sender_avatar),
         })),
         blockedFriends: blockedFriends.map(b => ({
           ...b,
-          avatar: b.avatar
-            ? b.avatar.includes("/uploads/avatars/")
-              ? b.avatar
-              : `/uploads/avatars/${b.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(b.avatar),
         })),
         searchResults: null,
         users: allUsers.map(u => ({
           ...u,
-          avatar: u.avatar
-            ? u.avatar.includes("/uploads/avatars/")
-              ? u.avatar
-              : `/uploads/avatars/${u.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(u.avatar),
           isActive: u.is_active,
           country: u.country || "غير محدد",
           age: u.age || "غير محدد",
@@ -1004,38 +874,22 @@ class FriendshipController {
       res.status(400).render("friends", {
         friends: friends.map(f => ({
           ...f,
-          avatar: f.avatar
-            ? f.avatar.includes("/uploads/avatars/")
-              ? f.avatar
-              : `/uploads/avatars/${f.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(f.avatar),
           online: io.sockets.sockets.get(f.id)?.connected || false,
           isActive: f.is_active,
         })),
         friendRequests: friendRequests.map(r => ({
           ...r,
-          sender_avatar: r.sender_avatar
-            ? r.sender_avatar.includes("/uploads/avatars/")
-              ? r.sender_avatar
-              : `/uploads/avatars/${r.sender_avatar}`
-            : "/uploads/images/pngwing.com.png",
+          sender_avatar: getAvatarPath(r.sender_avatar),
         })),
         blockedFriends: blockedFriends.map(b => ({
           ...b,
-          avatar: b.avatar
-            ? b.avatar.includes("/uploads/avatars/")
-              ? b.avatar
-              : `/uploads/avatars/${b.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(b.avatar),
         })),
         searchResults: null,
         users: allUsers.map(u => ({
           ...u,
-          avatar: u.avatar
-            ? u.avatar.includes("/uploads/avatars/")
-              ? u.avatar
-              : `/uploads/avatars/${u.avatar}`
-            : "/uploads/images/pngwing.com.png",
+          avatar: getAvatarPath(u.avatar),
           isActive: u.is_active,
           country: u.country || "غير محدد",
           age: u.age || "غير محدد",
@@ -1076,18 +930,11 @@ class FriendshipController {
       const isBlocked = await FriendshipModel.isUserBlocked(userId, friendId);
 
       const currentUser = await ProfileModels.GetProfileModels(userId);
-      const currentUserAvatar = currentUser && currentUser.avatar
-        ? `/uploads/avatars/${currentUser.avatar}`
-        : "/uploads/images/pngwing.com.png";
-
-      friendProfile.avatar = friendProfile.avatar
-        ? friendProfile.avatar.includes("/uploads/avatars/")
-          ? friendProfile.avatar
-          : `/uploads/avatars/${friendProfile.avatar}`
-        : "/uploads/images/pngwing.com.png";
+      const currentUserAvatar = getAvatarPath(currentUser?.avatar);
 
       const enrichedFriendProfile = {
         ...friendProfile,
+        avatar: getAvatarPath(friendProfile.avatar),
         name: friendProfile.name || "غير محدد",
         country: friendProfile.country || "غير محدد",
         age: friendProfile.age || "غير محدد",
@@ -1132,7 +979,7 @@ class FriendshipController {
         isFriend: false,
         userId: null,
         friendStatus: "no_friend",
-        currentUserAvatar: "/uploads/images/pngwing.com.png",
+        currentUserAvatar: getAvatarPath(null),
         unreadCount: 0,
         gallery: [],
         errorMessage: error.message || "حدث خطأ أثناء عرض الملف الشخصي للصديق",
@@ -1164,15 +1011,9 @@ class FriendshipController {
       const gallery = await ProfileModels.getGallery(friendId);
 
       const currentUser = await ProfileModels.GetProfileModels(userId);
-      const currentUserAvatar = currentUser && currentUser.avatar
-        ? `/uploads/avatars/${currentUser.avatar}`
-        : "/uploads/images/pngwing.com.png";
+      const currentUserAvatar = getAvatarPath(currentUser?.avatar);
 
-      friend.avatar = friend.avatar
-        ? friend.avatar.includes("/uploads/avatars/")
-          ? friend.avatar
-          : `/uploads/avatars/${friend.avatar}`
-        : "/uploads/images/pngwing.com.png";
+      friend.avatar = getAvatarPath(friend.avatar);
 
       res.render("profile", {
         user: friend,
@@ -1190,7 +1031,7 @@ class FriendshipController {
         user: null,
         friendStatus: "no_friend",
         userId: null,
-        currentUserAvatar: null,
+        currentUserAvatar: getAvatarPath(null),
         unreadCount: 0,
         gallery: [],
         errorMessage: error.message || "حدث خطأ أثناء عرض الملف الشخصي للصديق",
@@ -1358,11 +1199,7 @@ class FriendshipController {
       res.json({
         id: request.id,
         sender_name: request.sender_name,
-        sender_avatar: request.sender_avatar
-          ? request.sender_avatar.includes("/uploads/avatars/")
-            ? request.sender_avatar
-            : `/uploads/avatars/${request.sender_avatar}`
-          : "/uploads/images/pngwing.com.png",
+        sender_avatar: getAvatarPath(request.sender_avatar),
       });
     } catch (error) {
       console.error("Error in getFriendRequest:", error);
@@ -1380,11 +1217,7 @@ class FriendshipController {
       res.json({
         id: friend.id,
         name: friend.name,
-        avatar: friend.avatar
-          ? friend.avatar.includes("/uploads/avatars/")
-            ? friend.avatar
-            : `/uploads/avatars/${friend.avatar}`
-          : "/uploads/images/pngwing.com.png",
+        avatar: getAvatarPath(friend.avatar),
         online: io.sockets.sockets.get(friend.id)?.connected || false,
         isActive: friend.is_active,
       });
@@ -1403,11 +1236,7 @@ class FriendshipController {
       res.json({
         id: blocked.id,
         name: blocked.name,
-        avatar: blocked.avatar
-          ? blocked.avatar.includes("/uploads/avatars/")
-            ? blocked.avatar
-            : `/uploads/avatars/${blocked.avatar}`
-          : "/uploads/images/pngwing.com.png",
+        avatar: getAvatarPath(blocked.avatar),
       });
     } catch (error) {
       console.error("Error in getBlockedFriend:", error);
